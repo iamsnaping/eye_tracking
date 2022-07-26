@@ -13,8 +13,14 @@ class base_estimation(object):
     def gaze_estimation(self):
         pass
     def cross_ratio(self,v,m):
-        cross_ratio_x = ((v[0][0] * m[1][0] - m[0][0] * v[1][0]) * (m[0][1] * v[1][1] - v[0][1] * m[1][1])) \
-                        / ((v[0][0] * m[1][1] - m[0][1] * v[1][0]) * (m[0][0] * v[1][1] - v[0][1] * m[1][0]))
+        cross_ratio_x = ((v[0][0] * m[1][0] - m[0][0] * v[1][0]) * (m[0][1] * v[1][1] - v[0][1] * m[1][1])) /\
+                        ((v[0][0] * m[1][1] - m[0][1] * v[1][0]) * (m[0][0] * v[1][1] - v[0][1] * m[1][0]))
         cross_ratio_y = ((v[0][1] * m[1][2] - m[0][2] * v[1][1]) * (m[0][3] * v[1][2] - v[0][2] * m[1][3])) / \
                         ((v[0][1] * m[1][3] - m[0][3] * v[1][1]) * (m[0][2] * v[1][2] - v[1][2] * m[1][2]))
         return cross_ratio_x,cross_ratio_y
+
+    def screen_cross(self,v,p):
+        cross_ratio_x=p[0][0]/(self._w-p[0][0])
+        cross_ratio_y=p[1][0]/(self._h-p[1][0])
+        return cross_ratio_x,cross_ratio_y
+
