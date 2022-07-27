@@ -39,6 +39,9 @@ class plcr(base_estimation):
 
         self._pupil_center=np.zeros((3,1),np.float64)
 
+        # corneal radius actually
+        self._radius=0.0
+
     def set_vup(self, lights):
         mid = (lights[:,0] - lights[:,3]) + (lights[:,1] - lights[:,2])
         mid.reshape((3,1))
@@ -46,7 +49,7 @@ class plcr(base_estimation):
         print(f'this is up{self._up}')
 
     def get_param(self):
-        self._s = self._rt / np.sqrt(0.78*0.78 - self._param[2][0] ** 2)
+        self._s = self._rt / np.sqrt(self._radius**2 - self._param[2][0] ** 2)
         print(f'this is s {self._s}')
 
     def get_e_coordinate(self):
@@ -64,7 +67,7 @@ class plcr(base_estimation):
         self._fe=self._fe.T
         c = np.array([0, 0, -self._param[2][0]], np.float64).reshape((3, 1))
         v = np.array([self._param[0][0], self._param[1][0], 0], np.float64).reshape((3, 1))-c
-        leng=np.linalg.norm(v)*math.sin(2.0*math.pi/180)
+        leng=np.linalg.norm(v)*math.sin(2.0*math.pi/180)/math.cos(2*math.pi/180)
         v[1][0]=v[0][0]=leng
         # v[1][0]=-v[1][0]
         self._ci = self._s *(self._fe@c)
@@ -115,7 +118,8 @@ class plcr(base_estimation):
         #                         self._glints[:, 2].reshape((3, 1)) + b3 * I[2])) ** 2).sum() - self._h**2-self._w**2,
         #             (((self._glints[:, 1].reshape((3, 1)) + b2 * I[1]) - (
         #                         self._glints[:, 3].reshape((3, 1)) + b4 * I[3])) ** 2).sum() - self._h**2-self._w**2]
-        result = fsolve(get_func, [50000.0,50000.0, 50000.0, 50000.0])
+        parameter=math.ceil(400*self._s)
+        result = fsolve(get_func, [float(parameter),float(parameter), float(parameter), float(parameter)])
         print(f'this is result {result}')
         mid = np.array([0, 0, 1], np.float64).reshape((3, 1))
         points = []
