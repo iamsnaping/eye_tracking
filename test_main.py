@@ -11,7 +11,7 @@ import numpy as np
 
 def plcr_main():
     t=plcr(34,27,43.4)
-    t._rt=120
+    t._rt=200
     t._pupil_center=np.array([362.916962, 220.244675,0]).reshape((3,1))
     t._param=np.array([0,0,0.42],dtype=np.float64).reshape((3,1))
     t.get_param()
