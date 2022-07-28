@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import torch
 
@@ -17,15 +19,50 @@ def get_points(l1, l2):
     return points
 
 
+# 两个向量 方向要交叉
 def get_points_3d(*kwargs):
     p0 = kwargs[0].reshape(3)
     p1 = kwargs[1].reshape(3)
     p2 = kwargs[2].reshape(3)
     p3 = kwargs[3].reshape(3)
-    v1 = (p0 - p1) / np.linalg.norm(p0 - p1)
-    v2 = (p3 - p2) / np.linalg.norm(p3 - p2)
-    t = np.linalg.norm(np.cross((p2 - p1), v2)) / np.linalg.norm(np.cross(v1, v2))
+    v1 = (p0 - p1) /np.float64( np.linalg.norm(p0 - p1))
+    v2 = (p3 - p2) / np.float64(np.linalg.norm(p3 - p2))
+    cosa=(v1@v2)/(np.linalg.norm(v1)*np.linalg.norm(v2))
+    alpha=math.acos(cosa)
+    if alpha>math.pi/2:
+        v1=v1*(-1)
+    else:
+        v_1=-v1
+        v_2=-v2
+        alpha_2=math.acos(((v_1@v_2)/(np.linalg.norm(v_1)*np.linalg.norm(v_2))))
+        if alpha_2<alpha:
+            v1=v_1
+            v2=v_2
+    t = np.float64(np.linalg.norm(np.cross((p2 - p1), v2)) )/ np.float64(np.linalg.norm(np.cross(v1, v2)))
     point = p1 + t * v1
+    # print(f'this is points {point}')
+    # print(f'this is I1 {v1}')
+    return point
+
+
+def get_points_3d2(*kwargs):
+    p0 = kwargs[0].reshape(3)
+    p1 = kwargs[1].reshape(3)
+    p2 = kwargs[2].reshape(3)
+    p3 = kwargs[3].reshape(3)
+    dis1=np.linalg.norm(p2-p0)+np.linalg.norm(p2-p1)
+    dis2=np.linalg.norm(p3-p0)+np.linalg.norm(p3-p1)
+    if dis2>dis1:
+        t=p3
+        p3=p2
+        p2=t
+    v1 = (p0 - p1) /np.float64( np.linalg.norm(p0 - p1))
+    v2 = (p3 - p2) / np.float64(np.linalg.norm(p3 - p2))
+    t = np.float64(np.linalg.norm(np.cross((p2 - p1), v2)) )/ np.float64(np.linalg.norm(np.cross(v1, v2)))
+    print(f'this is t {t}')
+    # print(f'this is I1 {v1} I2 {v2}')
+    point = p1 + t * v1
+    # print(f'this is points {point}')
     return point
 
 
@@ -35,3 +72,7 @@ def get_w(x, y):
 # [ax2 ay2]
 # [ax3 ay3]]
 
+def get_cross(a,b):
+    print(f'this is a {a}')
+    print(f'this is b {b}')
+    return a[0]*b[1]-a[1]*b[0]

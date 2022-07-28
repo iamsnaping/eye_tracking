@@ -1,21 +1,31 @@
 import math
-
+from eye_utils import utils as util
 import numpy as np
+import matplotlib.pyplot as plt
 import torch
 from sympy import symbols, Eq, solve, nsolve
 from scipy.optimize import fsolve, root
 
-# t1=torch.tensor([0,1],dtype=torch.float64).reshape((1,2))
-# t2=torch.tensor([-1,-1],dtype=torch.float64).reshape((1,2))
-# print(torch.multiply(t1,t2))
 
-a=np.array([1,1,1]).reshape((3,1))
-b=np.array([2,2,2]).reshape((3,1))
-c=np.array([3,3,3]).reshape((3,1))
-t=np.concatenate((np.concatenate((a,b,c),axis=1),np.array([0,0,0]).reshape((3,1))),axis=1)
-print(t)
-d=np.array([4,4,4,4]).reshape((1,4))
-e=np.array([4,4,4,4]).reshape(4)
-print(np.concatenate((t,d),axis=0))
-k1,k2,k3=2
-print(k1,k2,k3)
+# t=util.get_points_3d(np.array([1220.74563412,220.1347212,0.0]),
+#                          np.array([272.74308375,273.8738555,0.0]),
+#                          np.array([250.68277,259.503143,0.0]),
+#                          np.array([251.993057,289.338593 ,0.0]))
+# x=[272.74308375, 250.68277, 251.993057]
+# y=[273.8738555 ,259.503143 ,289.338593]
+# x.append(t[0])
+# y.append(t[1])
+# col=[1,2,3,4]
+# plt.scatter(x,y,c=col)
+# plt.show()
+# a=np.array([1.0,1.0])
+# b=np.array([2.0,2.0])
+# print(np.cross(a,b))
+# x=[358.58670952,364.757599,320.601532,358.59464719,353.32534764]
+# y=[222.84529111,220.257584,221.87854,220.48382412,1788.10602238]
+# col=[1,2,3,4,5]
+# plt.scatter(x,y,c=col,s=10)
+# plt.show()
+a=np.array([1.0,-1.0])
+b=np.array([-1.0,1.0])
+print(np.cross(a,b))
