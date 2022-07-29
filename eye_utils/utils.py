@@ -31,13 +31,14 @@ def get_points_3d(*kwargs):
     alpha=math.acos(cosa)
     if alpha>math.pi/2:
         v1=v1*(-1)
-    else:
-        v_1=-v1
-        v_2=-v2
-        alpha_2=math.acos(((v_1@v_2)/(np.linalg.norm(v_1)*np.linalg.norm(v_2))))
-        if alpha_2<alpha:
-            v1=v_1
-            v2=v_2
+        t=p0
+        p0=p1
+        p1=t
+    dis1=np.linalg.norm(p3-p0)
+    dis2=np.linalg.norm(p2-p1)
+    if dis1>dis2:
+        v1*=(-1)
+        v2*=(-1)
     t = np.float64(np.linalg.norm(np.cross((p2 - p1), v2)) )/ np.float64(np.linalg.norm(np.cross(v1, v2)))
     point = p1 + t * v1
     # print(f'this is points {point}')
@@ -59,7 +60,7 @@ def get_points_3d2(*kwargs):
     v1 = (p0 - p1) /np.float64( np.linalg.norm(p0 - p1))
     v2 = (p3 - p2) / np.float64(np.linalg.norm(p3 - p2))
     t = np.float64(np.linalg.norm(np.cross((p2 - p1), v2)) )/ np.float64(np.linalg.norm(np.cross(v1, v2)))
-    print(f'this is t {t}')
+    # print(f'this is t {t}')
     # print(f'this is I1 {v1} I2 {v2}')
     point = p1 + t * v1
     # print(f'this is points {point}')
@@ -73,6 +74,6 @@ def get_w(x, y):
 # [ax3 ay3]]
 
 def get_cross(a,b):
-    print(f'this is a {a}')
-    print(f'this is b {b}')
+    # print(f'this is a {a}')
+    # print(f'this is b {b}')
     return a[0]*b[1]-a[1]*b[0]

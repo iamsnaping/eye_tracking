@@ -8,9 +8,9 @@ from scipy.optimize import fsolve, root
 import numpy as np
 
 
-class plcr(base_estimation):
+class plcr2(base_estimation):
     def __init__(self, w, h, d):
-        super(plcr, self).__init__(w, h, d)
+        super(plcr2, self).__init__(w, h, d)
         self._up = np.zeros((3, 1), np.float64)
         self._n = np.zeros((3, 1), np.float64)
         self._ez = np.zeros((3, 1), np.float64)
@@ -56,8 +56,8 @@ class plcr(base_estimation):
     #5 1.5 /  2 0.6
     def set_bias_vec(self,b_v):
         self._bias_vec=b_v
-        self._cali_ratio_x=-math.sin(1.5*math.pi/180.0)
-        self._cali_ratio_y=-math.sin(1.5*math.pi/180.0)
+        # self._cali_ratio_x=-math.sin(1.5*math.pi/180.0)
+        # self._cali_ratio_y=-math.sin(1.5*math.pi/180.0)
         # self._cali_ratio_y=0
 
         # self._cali_ratio_x = math.sin(1.0*math.pi/180.0)
@@ -275,7 +275,7 @@ class plcr(base_estimation):
         #         return self._gaze_estimation+self._bias_vec
         #     if self._gaze_estimation[1][0]>3:
         #         return self._gaze_estimation - self._bias_vec
-        # return self._gaze_estimation-self._bias_vec
+        return self._gaze_estimation-self._bias_vec
         return self._gaze_estimation
 
 # calibration
