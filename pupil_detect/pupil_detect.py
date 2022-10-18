@@ -162,4 +162,4 @@ class pupil_detection(object):
 if __name__=='__main__':
     cap_pic=pupil_detection("camera1", 1)
     cap_pic.cap_pic()
-    # cap_pic.hough('C:\\Users\\22848\\Desktop\\pic_detect\\1.png')
+    cap_pic.hough('C:\\Users\\22848\\Desktop\\pic_detect\\1.png')

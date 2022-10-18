@@ -5,7 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d32b8392-ec66-4ab1-aca0-26118c540617" name="Default Changelist" comment="Default Changelist">
-      <change beforePath="$PROJECT_DIR$/base_estimation/plcr/plcr.py" beforeDir="false" afterPath="$PROJECT_DIR$/base_estimation/plcr/plcr.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/eye_utils/data_util.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pupil_detect/contour_detector.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/show_data/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/show_data/show_data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_/common_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eye_utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/eye_utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pupil_detect/pupil_detect.py" beforeDir="false" afterPath="$PROJECT_DIR$/pupil_detect/pupil_detect.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/test2.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_/test2.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,8 +47,8 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/anaconda/envs/eye_tracking&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;power.mode.ii&quot;
+    &quot;last_opened_file_path&quot;: &quot;D:/dl_study&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -54,8 +63,8 @@
       <recent name="D:\eye_tracking\base_estimation" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.pupil_detect">
-    <configuration name="open_face_demo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.common_test">
+    <configuration name="common_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="eye_tracking" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -63,12 +72,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/image_process" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test_" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/image_process/open_face_demo.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test_/common_test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -77,29 +85,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="openface_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="eye_tracking" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/image_process" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/image_process/openface_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="pupil_detect" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="contour_detector" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="eye_tracking" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -111,8 +97,28 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/pupil_detect/pupil_detect.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/pupil_detect/contour_detector.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="show_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="eye_tracking" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/show_data" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/show_data/show_data.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -143,7 +149,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test_poly" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="test2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="eye_tracking" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -151,12 +157,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/polynomial" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test_" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/polynomial/test_poly.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test_/test2.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -166,19 +171,19 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.open_face_demo" />
-      <item itemvalue="Python.openface_test" />
-      <item itemvalue="Python.pupil_detect" />
+      <item itemvalue="Python.common_test" />
+      <item itemvalue="Python.contour_detector" />
+      <item itemvalue="Python.test2" />
+      <item itemvalue="Python.show_data" />
       <item itemvalue="Python.test" />
-      <item itemvalue="Python.test_poly" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test_poly" />
+        <item itemvalue="Python.common_test" />
+        <item itemvalue="Python.test2" />
+        <item itemvalue="Python.contour_detector" />
         <item itemvalue="Python.test" />
-        <item itemvalue="Python.pupil_detect" />
-        <item itemvalue="Python.openface_test" />
-        <item itemvalue="Python.open_face_demo" />
+        <item itemvalue="Python.show_data" />
       </list>
     </recent_temporary>
   </component>
@@ -223,7 +228,13 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>

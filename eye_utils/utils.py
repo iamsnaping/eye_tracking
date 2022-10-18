@@ -67,5 +67,6 @@ def get_points_3d2(*kwargs):
     return point
 
 
+#最小二乘法
 def get_w(x, y):
     return (np.linalg.inv(x.T@x)@x.T@y)
