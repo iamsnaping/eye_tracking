@@ -9,7 +9,12 @@ import numpy as np
 
 
 class plcr(base_estimation):
+<<<<<<< HEAD
     def __init__(self, w, h, d):
+=======
+    def __init__(self, w=34.0, h=27.0):
+        d=math.sqrt(w**2+h**2)
+>>>>>>> master
         super(plcr, self).__init__(w, h, d)
         self._up = np.zeros((3, 1), np.float64)
         self._n = np.zeros((3, 1), np.float64)
@@ -54,6 +59,7 @@ class plcr(base_estimation):
         self._up = (mid) / np.linalg.norm(mid)
         # print(f'this is up{self._up}')
     #5 1.5 /  2 0.6
+<<<<<<< HEAD
     def set_bias_vec(self,b_v):
         self._bias_vec=b_v
         self._cali_ratio_x=-math.sin(1.5*math.pi/180.0)
@@ -66,6 +72,13 @@ class plcr(base_estimation):
         # self._cali_ratio_y=math.sin(0.6*math.pi/180.0)
         # if b_v[1][0]>0:
         #     self._cali_ratio_y=-self._cali_ratio_y
+=======
+    def set_calibration_angle(self,x,y):
+        self._cali_ratio_x=x
+        self._cali_ratio_y=y
+    def set_bias_vec(self,b_v):
+        self._bias_vec=b_v
+>>>>>>> master
     def get_param(self):
         self._s = self._rt / np.sqrt(1 - self._param[2][0] ** 2)
         # print(f'this is s {self._s}')
@@ -268,6 +281,7 @@ class plcr(base_estimation):
         c_x, c_y = tu[0], tu[1]
         # print(f'this is c_x and c_y{c_x, c_y}')
         self._gaze_estimation[0][0] = self._w/(1.0+c_x)
+<<<<<<< HEAD
         # self._gaze_estimation[0][0] = c_x*self._w/(1.0+c_x)
         self._gaze_estimation[1][0] = c_y*self._h/(1.0+c_y)
         # if self._bias_vec[0][0]!=0.0:
@@ -276,6 +290,15 @@ class plcr(base_estimation):
         #     if self._gaze_estimation[1][0]>3:
         #         return self._gaze_estimation - self._bias_vec
         # return self._gaze_estimation-self._bias_vec
+=======
+        self._gaze_estimation[1][0] = c_y*self._h/(1.0+c_y)
+        if self._bias_vec[0][0]!=0.0:
+            # if (self._gaze_estimation[1][0]>=20) and (self._gaze_estimation[0][0]<15):
+            #     return self._gaze_estimation+self._bias_vec
+            # if self._gaze_estimation[1][0]>3:
+            #     return self._gaze_estimation - self._bias_vec
+            return self._gaze_estimation-self._bias_vec
+>>>>>>> master
         return self._gaze_estimation
 
 # calibration

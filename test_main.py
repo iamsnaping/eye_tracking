@@ -1,12 +1,15 @@
 import math
 import xml.sax.handler
+import math
+import xml.sax.handler
 
 from base_estimation.plcr.plcr import plcr
-from base_estimation.plcr.plcr_2 import plcr2
 import numpy as np
 import os
 import matplotlib.pyplot as plt
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+
+
 
 # 342.520325 256.411835
 # 320.601532 221.878540
@@ -26,55 +29,55 @@ head_bias=[[0,0,0],[0,0,12.5],[0,0,25],
            [-12.5,0,0],[-12.5,0,12.5],[-12.5,0,25],
            [-25,0,0],[-25,0,12.5],[-25,0,25]]
 index=0
-def plcr_main(points):
-    feature_path='D:\\download\\new_data_framework\\s1\\L\\0\\'
-    for point in points:
-        r_p=os.path.join(feature_path,point)
-        list_dir=os.listdir(r_p)
-        for dir in list_dir:
-            p=os.path.join(r_p,dir)
-            with open(p) as f:
-                t = f.read()
-                t = t.replace('\n', ' ')
-                t = t.split(' ')
-            f.close()
 
 
-def test_all_l(bias_vec):
+
+#             #################                 #################                 #################                 #################                 #################
+#             #################                 #################                 #################                 #################                 #################
+#             ##             ##                 ##             ##                 ##                                       ###                        ###
+#             ##             ##                 ##             ##                 ##                                       ###                        ###
+#             ##             ##                 ##             ##                 ##                                       ###                        ###
+#             ##             ##                 ##             ##                 ##                                       ###                        ###
+#             ##             ##                 ##             ##                 ##                                       ###                        ###
+#             #################                 #################                 #################                        ###                        ###
+#             #################                 #################                 #################                        ###                        ###
+#             ##             ##                 ##             ##                                ##                        ###                        ###
+#             ##             ##                 ##             ##                                ##                        ###                        ###
+#             ##             ##                 ##             ##                                ##                        ###                        ###
+#             ##             ##                 ##             ##                                ##                        ###                        ###
+#             ##             ##                 ##             ##                                ##                        ###                        ###
+#             #################                 ##             ##                 #################                 #################                 #################
+#             #################                 ##             ##                 #################                 #################                 #################
+#              @copyright
+#              2022-2122
+#                                                                                 *****************
+#                                                                                 ** wtc warning **
+#                                                                                 *****************
+#                                                             Chinese law provides severe civil and criminal penalties for
+#                                                             the unauthorized reproduction, distribution, or exhibition of
+#                                                             copyrighted motion pictures(Title 22,People' s republic of China
+#                                                             code, Section 369 and 443).The TC Bureau of investigation
+#                                                             investigates all allegations of criminal copyright infringement
+#                                                              (Title 22,Peole' s Republic of China Code,section 4396)
+#
+#
+def test_all_one_side(path='D:\\download\\new_data_framework\\s1\\L\\', t=None):
     global index
-    path='D:\\download\\new_data_framework\\s1\\L\\'
     goal=get_goal()
     for i in range(9):
         r_path=os.path.join(path,str(i))
         index=i
-        # print(f'this is r_path {r_path}')
-
-        estimation=get_ave2(r_path,bias_vec)
+        estimation=get_ave(r_path=r_path,plcr_=t)
         show_data(estimation,goal,i)
 
 
-def test_all_r(bias_vec):
-    global index
-    path = 'D:\\download\\new_data_framework\\s1\\R\\'
-    goal=get_goal()
-    for i in range(9):
-        r_path = os.path.join(path, str(i))
-        index = i
-        # print(f'this is r_path {r_path}')
-
-        estimation=get_ave(r_path, bias_vec)
-        show_data(estimation,goal,i)
-
-
-def test_all(bias_l=None,bias_r=None):
-    path_l='D:\\download\\new_data_framework\\s1\\L\\'
-    path_r='D:\\download\\new_data_framework\\s1\\R\\'
+def test_all(path_l='D:\\download\\new_data_framework\\s1\\L\\',path_r='D:\\download\\new_data_framework\\s1\\R\\',t_l=None,t_r=None):
     goal=get_goal()
     for i in range(9):
         l_path=os.path.join(path_l,str(i))
         r_path=os.path.join(path_r,str(i))
-        l_e=get_ave2(l_path,bias_l)
-        r_e=get_ave(r_path,bias_r)
+        r_e=get_ave(r_path=r_path,plcr_=t_r)
+        l_e=get_ave(r_path=l_path,plcr_=t_l)
         estimation=[]
         for l_points,r_points in zip(l_e,r_e):
             mid=[]
@@ -84,7 +87,7 @@ def test_all(bias_l=None,bias_r=None):
         show_data(estimation,goal,i)
 
 
-def get_ave(r_path,bias_vec):
+def get_ave(r_path=None,plcr_=None):
     list_dir=os.listdir(r_path)
     estimation=[]
     # print(list_dir)
@@ -99,30 +102,11 @@ def get_ave(r_path,bias_vec):
                 t=t.replace('\n',' ')
                 t=t.split(' ')
                 num=get_num(t)
-                mid.append(get_estimate(num,bias_vec))
+                mid.append(get_estimate(num, es_module=plcr_))
             f.close()
         estimation.append(mid)
     return estimation
 
-def get_ave2(r_path,bias_vec):
-    list_dir=os.listdir(r_path)
-    estimation=[]
-    # print(list_dir)
-    for dir in list_dir:
-        dir_f=os.path.join(r_path,dir)
-        l_d=os.listdir(dir_f)
-        mid = []
-        for f_d in l_d:
-            d=os.path.join(dir_f,f_d)
-            with open(d) as f:
-                t=f.read()
-                t=t.replace('\n',' ')
-                t=t.split(' ')
-                num=get_num(t)
-                mid.append(get_estimate2(num,bias_vec))
-            f.close()
-        estimation.append(mid)
-    return estimation
 
 def show_data(estimation,goal,index):
     # ave=analyze_es(estimation)
@@ -201,53 +185,24 @@ def get_mean_x_y(ave):
     return x_mean_t,y_mean_t
 
 
-def get_estimate(num,bias_vec=None):
-    t = plcr(34.0, 27.0, math.sqrt(34**2+27**2))
-    t._rt = 180
-    t._radius = 0.78
-    if bias_vec.any()!=None:
-        t.set_bias_vec(bias_vec)
-    t._pupil_center = np.array([num[10], num[11], 0]).reshape((3, 1))
-    t._param = np.array([0, 0, 0.42], dtype=np.float64).reshape((3, 1))
-    t.get_param()
-    t._up = np.array([0, 1, 0], dtype=np.float64).reshape((3, 1))
+def get_estimate(num, es_module=None):
+    es_module._pupil_center = np.array([num[10], num[11], 0]).reshape((3, 1))
+    es_module._param = np.array([0, 0, 0.42], dtype=np.float64).reshape((3, 1))
+    es_module.get_param()
+    es_module._up = np.array([0, 1, 0], dtype=np.float64).reshape((3, 1))
     light = np.array(
         [num[4], num[5], 0, num[2], num[3], 0, num[8], num[9], 0, num[6], num[7], 0],
         dtype=np.float64).reshape((4, 3))
     light = light.T
-    t._glints = t._pupil_center - light
-    t._g0 = np.array([num[0], num[1], 0], dtype=np.float64).reshape((3, 1))
-    t._g0 = t._pupil_center - t._g0
-    t.get_e_coordinate()
-    t.transform_e_to_i()
-    t.get_plane()
-    t.get_visual()
-    t.get_m_points()
-    return t.gaze_estimation()
-
-def get_estimate2(num,bias_vec=None):
-    t = plcr2(34.0, 27.0, math.sqrt(34**2+27**2))
-    t._rt = 180
-    t._radius = 0.78
-    if bias_vec.any()!=None:
-        t.set_bias_vec(bias_vec)
-    t._pupil_center = np.array([num[10], num[11], 0]).reshape((3, 1))
-    t._param = np.array([0, 0, 0.42], dtype=np.float64).reshape((3, 1))
-    t.get_param()
-    t._up = np.array([0, 1, 0], dtype=np.float64).reshape((3, 1))
-    light = np.array(
-        [num[4], num[5], 0, num[2], num[3], 0, num[8], num[9], 0, num[6], num[7], 0],
-        dtype=np.float64).reshape((4, 3))
-    light = light.T
-    t._glints = t._pupil_center - light
-    t._g0 = np.array([num[0], num[1], 0], dtype=np.float64).reshape((3, 1))
-    t._g0 = t._pupil_center - t._g0
-    t.get_e_coordinate()
-    t.transform_e_to_i()
-    t.get_plane()
-    t.get_visual()
-    t.get_m_points()
-    return t.gaze_estimation()
+    es_module._glints = es_module._pupil_center - light
+    es_module._g0 = np.array([num[0], num[1], 0], dtype=np.float64).reshape((3, 1))
+    es_module._g0 = es_module._pupil_center - es_module._g0
+    es_module.get_e_coordinate()
+    es_module.transform_e_to_i()
+    es_module.get_plane()
+    es_module.get_visual()
+    es_module.get_m_points()
+    return es_module.gaze_estimation()
 
 def get_num(s):
     num=[]
@@ -339,56 +294,77 @@ def compute_bias_angle(estimation,goal):
 
 
 
+
+#bias_vec[0]->l bias_vec[1]->r
 def main():
-    # plcr_main()
-    # plcr_main2()
-    # global index
-    # index=6
-    # get_ave('D:\\download\\new_data_framework\\s1\\L\\6\\')
-    # l_main()
-    r_main()
-    # bias_l=np.array([-0.6671642, -0.83690633], dtype=np.float64).reshape((2, 1))
-    # bias_r=np.array([2.0487150869825754 ,-2.193507059394102],dtype=np.float64).reshape((2,1))
-    # none_array=np.array([None])
-    # test_all(bias_l,bias_r)
+    paths='D:\\download\\new_data_framework\\s1\\R\\0\\25'
+    plcr_=plcr()
+    mode='l'
+    get_calibration_parameter(mode,plcr_)
+    test_one_points(paths,plcr_,24)
 
-def l_main():
-    bias_vec = np.array([-0.9045934097123802 ,-0.6962684618281858], dtype=np.float64).reshape((2, 1))
-    none_vec = np.array([None])
-    test_all_l(bias_vec=bias_vec)
 
-def r_main():
-    bias_vec=np.array([-2.0487150869825754 ,2.193507059394102],dtype=np.float64).reshape((2,1))
-    none_vec=np.array([None])
-    test_all_r(bias_vec=bias_vec)
 
-def test_one():
-    path='D:\\download\\new_data_framework\\s1\\L\\8\\'
+
+def test_one_position():
+    path='D:\\download\\new_data_framework\\s1\\R\\2\\'
     bias_vec=np.array([-0.6671642, -0.83690633], dtype=np.float64).reshape((2, 1))
+    none_vec=np.array([None])
     estimation=get_ave(path,bias_vec)
+    global index
+    index=2
     goal=get_goal()
     show_data(estimation,goal,8)
 
-def test_():
-    path='D:\\download\\new_data_framework\\s1\R\\0\\08\\00.txt'
-    num=[]
+def test_one_points(r_path,plcr_,p_num):
+    bias_vec=np.array([None])
+    estimation=get_ave(r_path,plcr_)
+    x=[]
+    y=[]
+    col=[]
+    s=[]
+    k=2
+    goal=get_goal()
+    for point in estimation:
+        x.append(point[0][0])
+        y.append(point[1][0])
+        col.append(k)
+        s.append(5)
+        k+=1
+    g=goal[p_num]
+    x.append(g[0][0])
+    y.append(g[1][0])
+    col.append(k)
+    s.append(10)
+    plt.scatter(x,y,c=col,s=s)
+    plt.show()
+
+
+#mode:左 或者右边 es_module:plcr_
+def test_one_point(path,es_module):
+    num = []
     with open(path) as f:
-        t=f.read()
-        t=t.replace('\n',' ')
-        t=t.split()
+        t = f.read()
+        t = t.replace('\n', ' ')
+        t = t.split()
         for i in t:
             num.append(trans(i))
         for i in range(len(t)):
-            print(t[i],end=' ')
-            if i&1==1:
+            print(t[i], end=' ')
+            if i & 1 == 1:
                 print(' ')
-    bias_vec = np.array([2.0487150869825754, -2.193507059394102], dtype=np.float64).reshape((2, 1))
-    estimation=get_estimate(num,bias_vec)
+    estimation = get_estimate(num,es_module=es_module)
     print(estimation)
 
+def get_calibration_parameter(s,plcr_):
+    if s=='l':
+         plcr_.set_bias_vec(np.array([2.0487150869825754, -2.193507059394102], dtype=np.float64).reshape((2, 1)))
+    elif s=='r':
+        plcr_.set_calibration_angle(-math.sin(1.5*math.pi/180.0),-math.sin(1.5*math.pi/180.0))
+    else:
+        plcr_.set_bias_vec(np.array([None]))
 
 if __name__=='__main__':
     main()
-    # test_()
-    # test_one()
-    # plcr_main(['01'])
+
+>>>>>>> master

@@ -44,4 +44,3 @@ class base_estimation(object):
         cross_ratio_x=p[0][0]/(self._w-p[0][0])
         cross_ratio_y=p[1][0]/(self._h-p[1][0])
         return cross_ratio_x,cross_ratio_y
-

@@ -67,13 +67,6 @@ def get_points_3d2(*kwargs):
     return point
 
 
+#最小二乘法
 def get_w(x, y):
-    return (np.linalg.inv(x.T,x)@x.T@y).reshape((2,3)).T
-#[[ax1 ay1]
-# [ax2 ay2]
-# [ax3 ay3]]
-
-def get_cross(a,b):
-    # print(f'this is a {a}')
-    # print(f'this is b {b}')
-    return a[0]*b[1]-a[1]*b[0]
+    return (np.linalg.inv(x.T@x)@x.T@y)
