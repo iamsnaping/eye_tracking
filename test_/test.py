@@ -247,7 +247,7 @@ def get_data(pa):
         while (cap.isOpened()):
             ref, frame = cap.read()
             k += 1
-            if k % 10 != 0:
+            if k % 5 != 0:
                 continue
             if ref:
                 img_path = os.path.join(pic_path, str(t) + '.png')
@@ -548,11 +548,11 @@ if __name__ == '__main__':
     # test_path = os.path.join(root_path, 'video_test')
     # img_path = os.path.join(test_path, '18.png')
     # test_pic(img_path)
-    get_data_spread()
+    # get_data_spread()
     # process_video()
     # print(f'round{T_R}')
     # print(f'glint{T_G}')
-    # get_data(root_path)
+    get_data(root_path)
 
     # blob_log_test(img)
     # img=get_ph(img_path)

@@ -26,3 +26,28 @@ def get_video(root_path, filename_extension='.avi'):
             continue
         video_name.append(os.path.join(root_path, f))
     return video_name
+
+
+def get_data(root_path,pic_path_name='origin'):
+        list_dir = os.listdir(root_path)
+        pic_path=os.path.join(root_path,pic_path_name)
+        if not os.path.exists(pic_path):
+            os.mkdir(pic_path)
+        t = 0
+        k = -1
+        for v_list in list_dir:
+            if os.path.splitext(v_list)[1] != '.avi':
+                continue
+            v_path = os.path.join(root_path, v_list)
+            cap = cv2.VideoCapture(v_path)
+            while (cap.isOpened()):
+                ref, frame = cap.read()
+                k += 1
+                if k % 5 != 0:
+                    continue
+                if ref:
+                    img_path = os.path.join(pic_path, str(t) + '.png')
+                    cv2.imwrite(img_path, frame)
+                    t += 1
+                else:
+                    break

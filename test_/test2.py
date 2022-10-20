@@ -6,16 +6,22 @@ import cv2
 from eye_utils import data_util as du
 
 root_path = 'C:\\Users\\snapping\\Desktop\\data\\2022.10.9\\left\\'
-pic_path = os.path.join(root_path, '8.png')
+pic_path = os.path.join(root_path, '1264.png')
 
 origin_img = cv2.imread(pic_path)
 gray_img = du.get_gray_pic(origin_img)
 gaussian_img = cv2.GaussianBlur(gray_img, (3, 3), 1)
-# for i in range(200):
-#     for j in range(200):
-#         gaussian_img[i][j]=0 if (gaussian_img[i][j]<70 or gaussian_img[i][j]>=150)else np.uint8(255)
-# du.show_ph(gaussian_img)
-canny_img = cv2.Canny(gaussian_img, 30, 40)
+pupil_img = np.zeros_like(gaussian_img, dtype=np.uint8)
+glint_img = np.zeros_like(gaussian_img, dtype=np.uint8)
+for i in range(200):
+    for j in range(200):
+        if gaussian_img[i][j] < 60:
+            pupil_img[i][j] = np.uint8(255)
+        if gaussian_img[i][j] >= 200:
+            glint_img[i][j] = np.uint8(255)
+du.show_ph(glint_img)
+du.show_ph(pupil_img)
+canny_img = cv2.Canny(gaussian_img, 30, 60)
 
 
 # shun shi zhen kai tou shi yao qu diao de
@@ -220,7 +226,8 @@ drawed_img = cv2.drawContours(img, contours, -1, (255, 255, 255))
 
 contours_num=[i for i in range(len(contours))]
 # contours_num=[0,1,2,3,4,5]
-drawed_img = cv2.cvtColor(drawed_img, cv2.COLOR_GRAY2RGB)
+# drawed_img = cv2.cvtColor(origin_img, cv2.COLOR_GRAY2RGB)
+drawed_img=origin_img
 for i in contours_num:
     # ellipse = cv2.fitEllipseDirect(contours[i])
     # center = (math.ceil(ellipse[0][0]), math.ceil(ellipse[0][1]))
