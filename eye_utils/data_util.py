@@ -43,8 +43,8 @@ def get_data(root_path,pic_path_name='origin'):
             while (cap.isOpened()):
                 ref, frame = cap.read()
                 k += 1
-                if k % 5 != 0:
-                    continue
+                # if k % 5 != 0:
+                #     continue
                 if ref:
                     img_path = os.path.join(pic_path, str(t) + '.png')
                     cv2.imwrite(img_path, frame)
