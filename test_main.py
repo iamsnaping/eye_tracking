@@ -184,6 +184,8 @@ def get_mean_x_y(ave):
 
 
 def get_estimate(num, es_module=None):
+    es_module._rt = 250
+    es_module._radius = 0.78
     es_module._pupil_center = np.array([num[10], num[11], 0]).reshape((3, 1))
     es_module._param = np.array([0, 0, 0.42], dtype=np.float64).reshape((3, 1))
     es_module.get_param()
@@ -364,4 +366,3 @@ def get_calibration_parameter(s,plcr_):
 
 if __name__=='__main__':
     main()
-

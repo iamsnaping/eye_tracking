@@ -9,7 +9,6 @@ def get_points(l1, l2):
     l1[1] = l1[1].reshape((2, 1))
     l2[0] = l2[0].reshape((2, 1))
     l2[1] = l2[1].reshape((2, 1))
-
     x0, x1, y0, y1 = l1[0][0][0], l1[1][0][0], l1[0][1][0], l1[1][1][0]
     x2, x3, y2, y3 = l2[0][0][0], l2[1][0][0], l2[0][1][0], l2[1][1][0]
     points = torch.zeros((2, 1), dtype=np.float64)
@@ -25,6 +24,7 @@ def get_points_3d(*kwargs):
     p1 = kwargs[1].reshape(3)
     p2 = kwargs[2].reshape(3)
     p3 = kwargs[3].reshape(3)
+    # print(f'p0 {p0}  p1 {p1}')
     v1 = (p0 - p1) /np.float64( np.linalg.norm(p0 - p1))
     v2 = (p3 - p2) / np.float64(np.linalg.norm(p3 - p2))
     cosa=(v1@v2)/(np.linalg.norm(v1)*np.linalg.norm(v2))
@@ -39,6 +39,8 @@ def get_points_3d(*kwargs):
     if dis1>dis2:
         v1*=(-1)
         v2*=(-1)
+    if np.linalg.norm(np.cross(v1,v2))==0:
+        v2[2]+=1
     t = np.float64(np.linalg.norm(np.cross((p2 - p1), v2)) )/ np.float64(np.linalg.norm(np.cross(v1, v2)))
     point = p1 + t * v1
     # print(f'this is points {point}')
