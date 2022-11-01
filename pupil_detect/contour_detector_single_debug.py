@@ -18,7 +18,7 @@ def get_five_points(unchosen_points):
     u_len=len(unchosen_points)
     flags=[False for i in range(u_len)]
     flags[0]=True
-    threshold1=math.cos(math.pi/8)
+    threshold1=math.cos(math.pi/10)
     for p in chosen_points:
         for i in range(u_len):
             if flags[i]:
@@ -94,7 +94,8 @@ class contour_with_ellipse(object):
         quadrant -= 0.25
         self.theta = (1.5 - np.abs(quadrant).sum()) / 1.5
         res = (points_outline - points_inline) / c_len
-        if -80<=res <= 30:
+        print(res)
+        if -70<res <= 30:
             self.gamma = 0
         else:
             self.gamma = math.fabs(res) / 255

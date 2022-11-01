@@ -49,6 +49,8 @@ class plcr(base_estimation):
         self._cali_ratio_x=0.0
         self._cali_ratio_y=0.0
         self._calibration_vec=[]
+        self._calibration_vec_des=[]
+        self._is_calibration=True
 
     def refresh(self):
         self._up = np.zeros((3, 1), np.float64)
@@ -234,9 +236,22 @@ class plcr(base_estimation):
         self._gaze_estimation[0] =self._w-self._w/(2.0-c_x)
         # self._gaze_estimation[1] = c_y*self._h/(1.0+c_y)
         self._gaze_estimation[1]=self._h/(2.0-c_y)
+        if not self._is_calibration:
+            return self._gaze_estimation
         p_dis=[]
-        for vec in self._calibration_vec:
+        compute_vec=np.zeros(2,dtype=np.float64)
+        dis=math.inf
+        t=np.zeros(2,dtype=np.float64)
+        for vec, v in zip(self._calibration_vec_des, self._calibration_vec):
+            d=np.linalg.norm(vec-self._gaze_estimation)
+            if d<dis:
+                dis=d
+                compute_vec=v
+                t=vec
+        return self._gaze_estimation-compute_vec
+        for vec in self._calibration_vec_des:
             p_dis.append(np.linalg.norm(vec-self._gaze_estimation))
+
         p_dis=np.array(p_dis,dtype=np.float64)
         p_sum=p_dis.sum()
         p_dis=p_sum/p_dis
@@ -245,8 +260,9 @@ class plcr(base_estimation):
             self._gaze_estimation-=vec*ratio
         return self._gaze_estimation
 
-    def set_calibration(self,vecs):
+    def set_calibration(self,vecs,des):
         self._calibration_vec=vecs
+        self._calibration_vec_des=des
 
 
 # calibration

@@ -28,6 +28,10 @@ def get_points_3d(*kwargs):
     v1 = (p0 - p1) /np.float64( np.linalg.norm(p0 - p1))
     v2 = (p3 - p2) / np.float64(np.linalg.norm(p3 - p2))
     cosa=(v1@v2)/(np.linalg.norm(v1)*np.linalg.norm(v2))
+    if cosa>=1:
+        cosa=1.0
+    if cosa<=-1:
+        cosa=-1.0
     alpha=math.acos(cosa)
     if alpha>math.pi/2:
         v1=v1*(-1)

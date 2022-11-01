@@ -7,18 +7,7 @@ import numpy as np
 from eye_tracking import eye_tracking as et
 from eye_utils import data_util as du
 
-# root_path = 'C:\\Users\\snapping\\Desktop\\data\\2022.10.22\\'
-# root_path = 'C:\\Users\\snapping\\Desktop\\data\\2022.10.24\\origin'
-# root_path = 'C:\\Users\\snapping\\Desktop\\data\\2022.10.24\\up'
-# root_path = 'C:\\Users\\snapping\\Desktop\\data\\2022.10.25\\origin'
-# root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.25\\origin_2'
-# root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.25\\test'
-# root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.25\\wq'
-# root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.25\\test2'
-# root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.25\\test3'
-root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.25\\test4'
-root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.26\\wtc1'
-root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.27\\wtc1\\glasses'
+root_path='C:\\Users\\snapping\\Desktop\\data\\2022.11.1\\wtc'
 pic_path=os.path.join(root_path,'drawed')
 if not os.path.exists(pic_path):
     os.makedirs(pic_path)
@@ -76,24 +65,27 @@ def get_path(dir):
     return t_file,i_file,images
 
 def main():
-    vec_left,vec_right,vec_ave=cali()
+    ttxt=[]
+    vec_left,vec_right,vec_ave,des=cali()
     a=[[0,0] for i in range(9)]
     a=np.array(a,dtype=np.float64)
     b=a.copy()
     tracker_1=et.eye_tracker()
-    # tracker_1.set_calibration([vec_left,vec_right])
+    tracker_1.set_calibration([vec_left,vec_right],des)
     tracker_2=et.eye_tracker()
-    tracker_2.set_calibration([a,b])
+    tracker_2.set_calibration([vec_ave],des)
     vec_left=np.zeros(2,dtype=np.float64)
     vec_right=np.zeros(2,dtype=np.float64)
+    vec_ave=np.zeros(2,dtype=np.float64)
+    vec_ave_2=np.zeros(2,dtype=np.float64)
     left=[]
     right=[]
     ave=[]
-    vec_ave=np.zeros(2,dtype=np.float64)
+    ave_2 = []
     tt=0
     img_ps=[]
     txts,imgs,image_ps=get_path('test')
-
+    angles=[]
     for txt_p,img_p,image_p in zip(txts,imgs,image_ps):
         # print(img_p)
         img=cv2.imread(img_p)
@@ -109,67 +101,93 @@ def main():
         txt=txt.split(' ')
         img_ps.append(img_p)
         txt=np.array(txt,dtype=np.float64)
-        print('this is compare',res,txt*52.78/1920,image_p)
+        ttxt.append(txt)
+        # print('this is compare',res,txt*52.78/1920,image_p)
         ave.append((res[1]+res[0])/2-txt*52.78/1920)
         left.append(res[0]-txt*52.78/1920.0)
         right.append(res[1]-txt*52.78/1920.0)
-    # vec_left/=tt
-    # vec_right/=tt
-    # vec_ave/=tt
-    for a,b,c in zip(left,right,ave):
-        print(a,b,c)
-    # ave_left,ave_right,max_left,min_left,max_right,min_left,total=0,0,0,0,0,0,0
-    # max_left,max_right=-1,-1
-    # min_left,min_right=10,10
-    # ave_a,max_a,min_a=0,-1,10
-    # ave_cc,max_cc,min_cc=0,-1,10
-    # for l,r,aver,img_p in zip(left,right,ave,img_ps):
-    #     a=l-vec_left
-    #     b=r-vec_right
-    #     print(a,b,end=' ')
-    #     c=(a+b)/2
-    #     d=aver-vec_ave
-    #     a=math.sqrt((a**2).sum())
-    #     b=math.sqrt((b**2).sum())
-    #     c=math.sqrt((c**2).sum())
-    #     d=math.sqrt((d**2).sum())
-    #     ll=math.asin(a/80)*180/math.pi
-    #     rr=math.asin(b/80)*180/math.pi
-    #     cc=math.asin(c/80)*180/math.pi
-    #     aa=math.asin(d/80)*180/math.pi
-    #     ave_left+=ll
-    #     ave_right+=rr
-    #     ave_cc+=cc
-    #     ave_a+=aa
-    #     max_a=max(max_a,aa)
-    #     min_a=min(min_a,aa)
-    #     max_cc=max(cc,max_cc)
-    #     min_cc=min(cc,min_cc)
-    #     max_left=max(ll,max_left)
-    #     min_left=min(ll,min_left)
-    #     max_right=max(rr,max_right)
-    #     min_right=min(rr,min_right)
-    #     total+=1
-    #     print(ll,end=' ')
-    #     print(rr,end=' ')
-    #     print(img_p)
-    # print('        最小误差                 平均误差                 最大误差')
-    # print(f'左眼误差：{min_left,ave_left/total,max_left}')
-    # print(f'有眼无差：{min_right, ave_right / total, max_right}')
-    # print(f'两眼均值误差{min_cc,ave_cc/total,max_cc}')
+        ave_2.append(res2-txt*52.78/1920.0)
+        imgs.append(image_p)
+        vec_left+=(res[0]-txt*52.78/1920.0)
+        vec_right+=(res[1]-txt*52.78/1920.0)
+        vec_ave+=((res[1]+res[0])/2-txt*52.78/1920)
+        vec_ave_2+=(res2-txt*52.78/1920.0)
+        tt+=1
+    vec_left/=tt
+    vec_right/=tt
+    vec_ave/=tt
+    vec_ave_2/=tt
+    print('{:<5}{:<30}\t{:<30}\t{:<30}\t{:<30}'.format('','左眼误差','右眼误差','两眼平均误差','平均修正误差'))
+    # print(('左眼误差右眼误差两眼平均误差 平均修正误差'))
+    for i,a,b,c,d,e in zip(range(len(left)),left,right,ave,ave_2,img_ps):
+        print('{:<3}: {:<30}\t{:<30}\t{:<30}\t{:<30}\t{}\t'.format(i,str(a),str(b),str(c),str(d),e))
+    print('{:<30}{:<30}{:<30}{:<30}'.format('左眼误差均值', '右眼误差均值', '两眼平均误差均值', '平均修正误差均值'))
+    print('{:<30}\t{:<30}\t{:<30}{:<30}'.format(str(vec_left),str(vec_right),str(vec_ave),str(vec_ave_2)))
+    # print(vec_left,vec_right,vec_ave,vec_ave_2)
+    # print('end')
+    ave_left,ave_right,max_left,min_left,max_right,min_left,total=0,0,0,0,0,0,0
+    max_left,max_right=-1,-1
+    min_left,min_right=10,10
+    ave_a,max_a,min_a=0,-1,10
+    ave_cc,max_cc,min_cc=0,-1,10
+    ave_ee, max_ee, min_ee = 0, -1, 10
+    for l,r,aver,ave2,img_p in zip(left,right,ave,ave_2,img_ps):
+        a=l
+        b=r
+        c=(a+b)/2
+        d=aver
+        e=ave2
+        a=math.sqrt((a**2).sum())
+        b=math.sqrt((b**2).sum())
+        c=math.sqrt((c**2).sum())
+        d=math.sqrt((d**2).sum())
+        e=math.sqrt((e**2).sum())
+        ll=math.asin(a/63)*180/math.pi
+        rr=math.asin(b/63)*180/math.pi
+        cc=math.asin(c/63)*180/math.pi
+        aa=math.asin(d/63)*180/math.pi
+        ee=math.asin(e/63)*180/math.pi
+        ave_left+=ll
+        ave_right+=rr
+        ave_cc+=cc
+        ave_ee+=ee
+        ave_a+=aa
+        max_a=max(max_a,aa)
+        min_a=min(min_a,aa)
+        max_cc=max(cc,max_cc)
+        min_cc=min(cc,min_cc)
+        max_left=max(ll,max_left)
+        min_left=min(ll,min_left)
+        max_right=max(rr,max_right)
+        min_right=min(rr,min_right)
+        max_ee=max(max_ee,ee)
+        min_ee=min(min_ee,ee)
+        total+=1
+        # print(ll,end=' ')
+        # print(rr,end=' ')
+        # print(img_p)
+    print('        最小误差                 平均误差                 最大误差')
+    print(f'左眼误差：{min_left,ave_left/total,max_left}')
+    print(f'右眼误差：{min_right, ave_right / total, max_right}')
+    print(f'两眼均值误差{min_a,ave_a/total,max_a}')
+    print(f'均值修正误差{min_ee,ave_ee/total,max_ee}')
     # print(min_a,ave_a/total,max_a)
+    for t in ttxt:
+        print(t)
 
 def cali():
     tracker=et.eye_tracker()
     vecs_left=[]
     vecs_right=[]
     vecs_ave=[]
+    c_txt=[]
     txts,imgs,image_ps=get_path('cali')
-
+    des=[]
     for txt_p,img_p,image_p in zip(txts,imgs,image_ps):
         img=cv2.imread(img_p)
         gray_img=du.get_gray_pic(img)
         # tracker.set_calibration([np.array([[0,0] for i in range(9)],dtype=np.float64),np.array([[0,0] for i in range(9)],dtype=np.float64)])
+        # print(len(gray_img),image_p)
         res=tracker.detect(gray_img,image_p)
         # print(img_p,res)
         if isinstance(res,bool):
@@ -179,16 +197,13 @@ def cali():
             txt=t.read()
         txt=txt.split(' ')
         txt=np.array(txt,dtype=np.float64)
-        txt=txt*51.78/1920
+        c_txt.append(txt)
+        txt=txt*52.78/1920
         vecs_left.append(res[0]-txt)
         vecs_right.append(res[1]-txt)
         vecs_ave.append((res[0]+res[1])/2-txt)
-    print('vecs begin')
-    for a,b,c in zip(vecs_left,vecs_right,vecs_ave):
-        print(a,b,c)
-    print('vecs end')
-    print('cali end')
-    return np.array(vecs_left,dtype=np.float64),np.array(vecs_right,dtype=np.float64),np.array(vecs_ave,dtype=np.float64)
+        des.append(txt)
+    return np.array(vecs_left,dtype=np.float64),np.array(vecs_right,dtype=np.float64),np.array(vecs_ave,dtype=np.float64),np.array(des,dtype=np.float64)
 
 
 

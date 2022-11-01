@@ -1,3 +1,4 @@
+import math
 import os
 import numpy as np
 
@@ -9,9 +10,9 @@ from eye_utils import data_util as du
 
 
 root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.26\\wtc1\\cali'
-root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.27\\wtc1\\glasses\\cali'
+root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.31\\wtc\\com'
 # root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.25\\wq'
-pic_path=os.path.join(root_path,'2.png')
+pic_path=os.path.join(root_path,'0.png')
 img=cv2.imread(pic_path)
 
 params = cds.PuRe_params()
@@ -30,7 +31,7 @@ params.g_binary_threshold=150
 
 
 # nums=[19,2,21,23,28,29,3,30,5]
-nums=[0,7]
+nums=[0]
 skip_nums=[19]
 #
 debug_detector=cdsd.PuRe(params)
@@ -77,6 +78,21 @@ class eye_tracker:
         params.p_binary_threshold = 50
         params.g_binary_threshold=150
 
+        params.threshold1 = 30
+        params.threshold2 = 60
+        params.r_th = 0.3
+        params.find_contour_param = cv2.CHAIN_APPROX_NONE
+        params.gd_max = 20
+        params.gd_min = 1
+        params.glints_num = 5
+        params.pd_min = 30
+        params.pd_max = 80
+        params.g_threshold = 30
+        params.p_binary_threshold = 50
+        params.g_binary_threshold = 150
+
+        self.average_mode=False
+
         self.pure=cds.PuRe(params)
         self.plcr=[bp.plcr(52.78,31.26),bp.plcr(52.78,31.26)]
         self.plcr[0]._rt = 220
@@ -86,9 +102,18 @@ class eye_tracker:
     def set_params(self,params):
         self.pure.set_params(params)
 
-    def set_calibration(self,vec):
-        self.plcr[0].set_calibration(vec[0])
-        self.plcr[1].set_calibration(vec[1])
+    def set_calibration(self,vec,des):
+        if len(vec)==2:
+            self.plcr[0].set_calibration(vec[0],des)
+            self.plcr[1].set_calibration(vec[1],des)
+        else:
+            self.plcr[0]._is_calibration=False
+            self.plcr[1]._is_calibration = False
+            self.average_mode=True
+            self.plcr[0].set_calibration(vec[0], des)
+            self.plcr[1].set_calibration(vec[0], des)
+            self.vecs=vec[0]
+            self.des=des
 
     def get_estimation(self,num,eye_num):
         self.plcr[eye_num]._pupil_center = np.array([num[0][0], num[0][1], 0]).reshape((3, 1))
@@ -160,4 +185,27 @@ class eye_tracker:
         self.plcr[0].refresh()
         r=self.get_estimation(right,1)
         self.plcr[1].refresh()
+        gaze_estimation=(l+r)/2
+        if self.average_mode:
+            p_dis = []
+            t=np.zeros(2,dtype=np.float64)
+            compute_vec=np.zeros(2,dtype=np.float64)
+            dis=math.inf
+            for vec,v in zip(self.des,self.vecs):
+                d=np.linalg.norm(gaze_estimation-vec)
+                if d<dis:
+                    dis=d
+                    compute_vec=v
+                    t=vec
+            return gaze_estimation-compute_vec
+
+            for vec in self.des:
+                p_dis.append(np.linalg.norm(vec - gaze_estimation))
+            p_dis = np.array(p_dis, dtype=np.float64)
+            p_sum = p_dis.sum()
+            p_dis = p_sum / p_dis
+            p_dis /= p_dis.sum()
+            for vec, ratio in zip(self.vecs, p_dis):
+                gaze_estimation -= vec * ratio
+            return gaze_estimation
         return l,r

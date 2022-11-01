@@ -18,7 +18,7 @@ def get_five_points(unchosen_points):
     u_len=len(unchosen_points)
     flags=[False for i in range(u_len)]
     flags[0]=True
-    threshold1=math.cos(math.pi/8)
+    threshold1=math.cos(math.pi/10)
     for p in chosen_points:
         for i in range(u_len):
             if flags[i]:
@@ -93,7 +93,7 @@ class contour_with_ellipse(object):
         quadrant -= 0.25
         self.theta = (1.5 - np.abs(quadrant).sum()) / 1.5
         res = (points_outline - points_inline) / c_len
-        if -80<=res <= 30:
+        if -70<res <= 30:
             self.gamma = 0
         else:
             self.gamma = math.fabs(res) / 255
@@ -386,21 +386,6 @@ class PuRe(object):
             g_contours.append(contours[i])
         return g_contours
 
-    # def get_glints(self, img, contours, pupil):
-    #     glint_contours=[]
-    #     flags=[]
-    #     for contour in contours:
-    #         dis = ((pupil[0] - contour.ellipse[0][0]) ** 2) + ((pupil[1] - contour.ellipse[0][1]) ** 2)
-    #         if dis > pupil[2]:
-    #             continue
-    #         contour.get_scores(img)
-    #         if contour.gamma==0:
-    #             continue
-    #         flags.append([contour,dis])
-    #     flags.sort(key=lambda x:x[1])
-    #     for flag in flags:
-    #         glint_contours.append(flag[0])
-    #     return glint_contours[0:self.glints_num]
 
     def get_glints(self, img, contours, pupil):
         glint_contours=[]
@@ -444,6 +429,7 @@ class PuRe(object):
         res1 = cv2.connectedComponentsWithStatsWithAlgorithm(pupil_img, connectivity=8, ltype=cv2.CV_32S,
                                                              ccltype=cv2.CCL_DEFAULT)
         pupils = []
+        contour_re=[]
         for contours, centroid in zip(res1[2], res1[3]):
             if not self.pd_min < contours[2] < self.pd_max:
                 continue
@@ -454,12 +440,20 @@ class PuRe(object):
                 continue
             x = contours[0] + contours[2] / 2
             y = contours[1] + contours[3] / 2
+            if 0<=centroid[0]<=100 or 1820<=centroid[0]<=1920:
+                continue
+            if 0 <= centroid[1] <= 100 or 980 <= centroid[1] <= 1080:
+                continue
             dis = ((x - centroid[0]) ** 2) + ((y - centroid[1]) ** 2)
-            if dis > 20:
+            if dis > 10:
                 continue
             pupils.append(centroid)
         if len(pupils)<=1:
             return False
+        # print(pupils)
+        # if len(pupils)==3:
+
+            # du.show_ph(pupil_img)
         img_1 = img[int(pupils[0][1]) - 100:int(pupils[0][1]) + 100, int(pupils[0][0]) - 100:int(pupils[0][0]) + 100]
         img_2 = img[int(pupils[1][1]) - 100:int(pupils[1][1]) + 100, int(pupils[1][0]) - 100:int(pupils[1][0]) + 100]
         img_1_origin = (int(pupils[0][0]) - 100, int(pupils[0][1]) - 100)
