@@ -317,6 +317,8 @@ class PuRe_params(object):
         self.g_threshold = 50
         self.p_binary_threshold = 35
         self.g_binary_threshold = 135
+        self.pupil_d_l = 0.
+        self.pupil_d_r = 0.
         for i in range(11):
             for j in range(11):
                 if (np.abs(i - 5) ** 2) + (np.abs(j - 5) ** 2) <= 16:
@@ -347,6 +349,9 @@ class PuRe(object):
             self.kernel = np.zeros((11, 11), dtype=np.float32)
             self.p_binary_threshold = 35
             self.g_binary_threshold = 135
+            self.pupil_center=np.zeros(2,dtype=np.float32)
+            self.pupil_d_l=0.
+            self.pupil_d_r=0.
             for i in range(11):
                 for j in range(11):
                     if (np.abs(i - 5) ** 2) + (np.abs(j - 5) ** 2) <= 16:
@@ -564,6 +569,8 @@ class PuRe(object):
         times_recorder[1] += 1.0
         time_recorder[1]+=time3-time2
         # cv2.setNumThreads(2)
+        self.pupil_center=np.array([pupils[0][0]+pupils[1][0],pupils[0][1]+pupils[1][1]],dtype=np.float32)
+        self.pupil_center/=2.
         img_1 = img[int(pupils[0][1]) - 70:int(pupils[0][1]) + 70, int(pupils[0][0]) - 70:int(pupils[0][0]) + 70]
         img_2 = img[int(pupils[1][1]) - 70:int(pupils[1][1]) + 70, int(pupils[1][0]) - 70:int(pupils[1][0]) + 70]
         img_1_origin = (int(pupils[0][0]) - 70, int(pupils[0][1]) - 70)
@@ -609,6 +616,8 @@ class PuRe(object):
         # cv2.parallel.setParallelForBackend()
         p_contours_1 = best_contours1
         p_contours_2 = best_contours2
+        self.pupil_d_l = (p_contours_1[1][0]+p_contours_1[1][1])/2.
+        self.pupil_d_r = (p_contours_2[1][0]+p_contours_2[1][1])/2.
         # print(pupils,p_contours_1.ellipse[0],p_contours_2.ellipse[0])
         time5 = timeit.default_timer()
         times_recorder[3] += 1.0

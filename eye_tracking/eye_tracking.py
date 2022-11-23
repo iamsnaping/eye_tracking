@@ -128,19 +128,6 @@ def get_glints_sort(glints):
 class eye_tracker:
     def __init__(self):
         params = cds.PuRe_params()
-
-        params.threshold1 = 30
-        params.threshold2 = 60
-        params.r_th = 0.5
-        params.find_contour_param = cv2.CHAIN_APPROX_NONE
-        params.gd_max = 20
-        params.gd_min = 2
-        params.glints_num = 5
-        params.pd_min = 30
-        params.pd_max = 60
-        params.g_threshold = 30
-        params.p_binary_threshold = 45
-        params.g_binary_threshold = 140
         self.is_calibration=True
         params.threshold1 = 30
         params.threshold2 = 60
@@ -155,15 +142,19 @@ class eye_tracker:
         params.p_binary_threshold = 45
         params.g_binary_threshold = 145
         self.average_mode=False
-
         self.pure=cds.PuRe(params)
         self.plcr=[bp.plcr(52.78,31.26),bp.plcr(52.78,31.26)]
         self.plcr[0]._rt = 220
         self.plcr[0]._radius = 0.78
         self.plcr[1]._rt = 220
         self.plcr[1]._radius = 0.78
+        self.origin_position=np.zeros(2,dtype=np.float32)
     def set_params(self,params):
         self.pure.set_params(params)
+
+    def set_d(self,x,y):
+        self.plcr[0]._rt=x
+        self.plcr[1]._rt=y
 
     def set_calibration(self,vec,des):
         if len(vec)==2:
@@ -200,13 +191,15 @@ class eye_tracker:
         self.plcr[0]._is_calibration=mode
         self.plcr[1]._is_calibration=mode
     #binary img
-    def detect(self,img,img_p=None):
+    def detect(self,img,img_p=None,f=False):
         global time_recoder,times_recorder
         time1=timeit.default_timer()
         res = self.pure.detect(img=img)
         time2=timeit.default_timer()
         times_recorder[0]+=1.
         time_recoder[0]+=time2-time1
+        if not isinstance(f,bool):
+            f=self.pure.pupil_center
         if isinstance(res,bool):
             return 'can not detect glints or pupils'
         glints_l = []
@@ -267,8 +260,7 @@ class eye_tracker:
         '''
         left.extend(glints_l)
         right.extend(glints_r)
-        compute_vec = np.zeros(2, dtype=np.float32)
-        dis_vec = np.array([0., 0.], dtype=np.float32)
+
         l=self.get_estimation(left,0)
         self.plcr[0].refresh()
         r=self.get_estimation(right,1)
@@ -387,7 +379,8 @@ class eye_tracker:
                 ref, frame = cap.read()
                 gray_img = du.get_gray_pic(frame)
                 d_path=os.path.join(draw_path,str(nums)+'.png')
-                res = self.detect(gray_img,img_p=d_path)
+                sub_center=np.zeros(2,dtype=np.float32)
+                res = self.detect(gray_img,img_p=d_path,f=sub_center)
                 if isinstance(res,str):
                     continue
                 if store:
