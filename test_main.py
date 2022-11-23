@@ -1,7 +1,4 @@
-import math
-import xml.sax.handler
-import math
-import xml.sax.handler
+
 
 from base_estimation.plcr.plcr import plcr
 import numpy as np
@@ -156,7 +153,7 @@ def draw(estimation,ave):
 def analyze_es(estimation):
     ave_points=[]
     for points in estimation:
-        mid_ave = np.zeros((2, 1), np.float64).reshape((2,1))
+        mid_ave = np.zeros((2, 1), np.float32).reshape((2,1))
         t=0
         for point in points:
             # print(mid_ave)
@@ -186,16 +183,18 @@ def get_mean_x_y(ave):
 
 
 def get_estimate(num, es_module=None):
+    es_module._rt = 250
+    es_module._radius = 0.78
     es_module._pupil_center = np.array([num[10], num[11], 0]).reshape((3, 1))
-    es_module._param = np.array([0, 0, 0.42], dtype=np.float64).reshape((3, 1))
+    es_module._param = np.array([0, 0, 0.42], dtype=np.float32).reshape((3, 1))
     es_module.get_param()
-    es_module._up = np.array([0, 1, 0], dtype=np.float64).reshape((3, 1))
+    es_module._up = np.array([0, 1, 0], dtype=np.float32).reshape((3, 1))
     light = np.array(
         [num[4], num[5], 0, num[2], num[3], 0, num[8], num[9], 0, num[6], num[7], 0],
-        dtype=np.float64).reshape((4, 3))
+        dtype=np.float32).reshape((4, 3))
     light = light.T
     es_module._glints = es_module._pupil_center - light
-    es_module._g0 = np.array([num[0], num[1], 0], dtype=np.float64).reshape((3, 1))
+    es_module._g0 = np.array([num[0], num[1], 0], dtype=np.float32).reshape((3, 1))
     es_module._g0 = es_module._pupil_center - es_module._g0
     es_module.get_e_coordinate()
     es_module.transform_e_to_i()
@@ -241,13 +240,13 @@ def get_goal():
         y_co = i * y + y_margin
         for j in range(7):
             x_co = x * j + x_margin
-            point=np.array([x_co,y_co],np.float64).reshape((2,1))
+            point=np.array([x_co,y_co],np.float32).reshape((2,1))
             points.append(point)
     return points
 
 def compute_bias(estimation,goal):
     ave_bias=[]
-    ave_vec=np.array([0,0],np.float64).reshape((2,1))
+    ave_vec=np.array([0,0],np.float32).reshape((2,1))
     for i in range(49):
         bias=0.0
         for point in estimation[i]:
@@ -266,8 +265,8 @@ def compute_bias_angle(estimation,goal):
     ave_bias=[]
     max_bias=[]
     min_bias=[]
-    vec_t=np.zeros(shape=(3),dtype=np.float64)
-    vec_g=np.zeros(shape=(3),dtype=np.float64)
+    vec_t=np.zeros(shape=(3),dtype=np.float32)
+    vec_g=np.zeros(shape=(3),dtype=np.float32)
     for i in range(49):
         mini=100.0
         maxi=-1.0
@@ -279,7 +278,7 @@ def compute_bias_angle(estimation,goal):
             vec_t-=head
             vec_g/=np.linalg.norm(vec_g)
             vec_t/=np.linalg.norm(vec_t)
-            alpha=math.acos(np.dot(vec_g,vec_t))*180.0/math.pi
+            alpha=np.acos(np.dot(vec_g,vec_t))*180.0/np.pi
             mini=min(alpha,mini)
             maxi=max(alpha,maxi)
             ave+=alpha
@@ -308,7 +307,7 @@ def main():
 
 def test_one_position():
     path='D:\\download\\new_data_framework\\s1\\R\\2\\'
-    bias_vec=np.array([-0.6671642, -0.83690633], dtype=np.float64).reshape((2, 1))
+    bias_vec=np.array([-0.6671642, -0.83690633], dtype=np.float32).reshape((2, 1))
     none_vec=np.array([None])
     estimation=get_ave(path,bias_vec)
     global index
@@ -358,13 +357,11 @@ def test_one_point(path,es_module):
 
 def get_calibration_parameter(s,plcr_):
     if s=='l':
-         plcr_.set_bias_vec(np.array([2.0487150869825754, -2.193507059394102], dtype=np.float64).reshape((2, 1)))
+         plcr_.set_bias_vec(np.array([2.0487150869825754, -2.193507059394102], dtype=np.float32).reshape((2, 1)))
     elif s=='r':
-        plcr_.set_calibration_angle(-math.sin(1.5*math.pi/180.0),-math.sin(1.5*math.pi/180.0))
+        plcr_.set_calibration_angle(-np.sin(1.5*np.pi/180.0),-np.sin(1.5*np.pi/180.0))
     else:
         plcr_.set_bias_vec(np.array([None]))
 
 if __name__=='__main__':
     main()
-
->>>>>>> master

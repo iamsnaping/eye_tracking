@@ -44,8 +44,8 @@ class pc_cr(base_polynomial):
         return glint1,glint2
 
     def data_rules(self,point):
-        x=np.zeros((1,8),dtype=np.float64)
-        y=np.zeros((1,8),dtype=np.float64)
+        x=np.zeros((1,8),dtype=np.float32)
+        y=np.zeros((1,8),dtype=np.float32)
         x[0][0],x[0][1],x[0][2],x[0][3]=1.0,point[0,0],point[0,0]**3,point[1,0]**2
         y[0][4],y[0][5],y[0][6],y[0][7]=1.0,point[0,0],point[1,0],point[0,0]**2*point[1,0]
         return np.concatenate((x,y),axis=0)

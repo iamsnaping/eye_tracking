@@ -13,7 +13,7 @@ class crdd(base_estimation):
         self._virtual_points = torch.zeros((2, 5), dtype=torch.float64)
         self._pupil_center = torch.zeros((1, 2), dtype=torch.float64)
         self._optical = torch.zeros((1, 2), dtype=torch.float64)
-        self._fifth = np.zeros((2, 1), dtype=np.float64)
+        self._fifth = np.zeros((2, 1), dtype=np.float32)
         self._vanishing_points = torch.zeros((2, 2), dtype=torch.float64)
         self._alpha = torch.tensor([[2.0]], dtype=torch.float64, requires_grad=True)
         self._gaze_estimation = torch.zeros((2, 1), dtype=torch.float64)
