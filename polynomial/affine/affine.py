@@ -15,6 +15,6 @@ class affine(base_polynomial):
         for i in range(len(x[0])):
             mid.append([x[0,i],x[1,i],1,0,0,0])
             mid.append([0,0,0,x[0,i],x[1,i],1])
-        x=np.array(mid,dtype=np.float64).reshape((-1,6))
+        x=np.array(mid,dtype=np.float32).reshape((-1,6))
         self._coefficient= util.get_w(x,y)
 

@@ -1,4 +1,4 @@
-import math
+import np
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -88,7 +88,7 @@ def test_one_opsition(num_p):
         v1 /= np.linalg.norm(v1)
         v2 = np.array([goals[i // 20][0][0], goals[i // 20][1][0],0]) - head
         v2 /= np.linalg.norm(v2)
-        alpha = math.acos(np.dot(v1, v2)) *180.0/math.pi
+        alpha = np.acos(np.dot(v1, v2)) *180.0/np.pi
         ave_angle[i // 20] += alpha
         i += 1
     for i in range(49):
@@ -132,7 +132,7 @@ def test_one_eye(p_path):
         v1/=np.linalg.norm(v1)
         v2=np.array([goals[i//20,0],estimation[i//20,1],0])-head
         v2/=np.linalg.norm(v2)
-        alpha=math.acos(np.dot(v1,v2))*math.pi/180.0
+        alpha=np.acos(np.dot(v1,v2))*np.pi/180.0
         ave_angle[i//20]+=alpha
         i+=1
     for i in range(49):

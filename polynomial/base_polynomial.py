@@ -10,7 +10,7 @@ import numpy as np
 class base_polynomial:
     def __init__(self,calibration_num):
         self._calib_num=calibration_num
-        self._estimation=np.zeros((2,1),dtype=np.float64)
+        self._estimation=np.zeros((2,1),dtype=np.float32)
     def get_matric(self,x,y):
         pass
     def data_rules(self,point):

@@ -6,14 +6,50 @@
   <component name="ChangeListManager">
     <list default="true" id="983f8d42-2e5e-464c-b896-1aea41736556" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/base_estimation/base_estimation.py" beforeDir="false" afterPath="$PROJECT_DIR$/base_estimation/base_estimation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/base_estimation/crdd/crdd.py" beforeDir="false" afterPath="$PROJECT_DIR$/base_estimation/crdd/crdd.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/base_estimation/plcr/plcr.py" beforeDir="false" afterPath="$PROJECT_DIR$/base_estimation/plcr/plcr.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data_geter/data_geter.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_geter/data_geter.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/eye_tracking/eye_tracking.py" beforeDir="false" afterPath="$PROJECT_DIR$/eye_tracking/eye_tracking.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/eye_utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/eye_utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/dlib/mean.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/dlib/shape_predictor_68_face_landmarks.dat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/dlib/std.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/get-models.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/openface/celeb-classifier.nn4.small2.v1.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/openface/nn2.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/openface/nn4.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/openface/nn4.small1.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/openface/nn4.small2.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/openface/nn4.small2.v1.t7" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/openface/resnet1.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/openface/vgg-face.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_process/models/openface/vgg-face.small1.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/polynomial/affine/affine.py" beforeDir="false" afterPath="$PROJECT_DIR$/polynomial/affine/affine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/polynomial/base_polynomial.py" beforeDir="false" afterPath="$PROJECT_DIR$/polynomial/base_polynomial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/polynomial/pr_cr/pc_cr.py" beforeDir="false" afterPath="$PROJECT_DIR$/polynomial/pr_cr/pc_cr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/polynomial/test_poly.py" beforeDir="false" afterPath="$PROJECT_DIR$/polynomial/test_poly.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pupil_detect/contour_detector.py" beforeDir="false" afterPath="$PROJECT_DIR$/pupil_detect/contour_detector.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pupil_detect/contour_detector_single.py" beforeDir="false" afterPath="$PROJECT_DIR$/pupil_detect/contour_detector_single.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pupil_detect/contour_detector_single_debug.py" beforeDir="false" afterPath="$PROJECT_DIR$/pupil_detect/contour_detector_single_debug.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test_/common_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_/common_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test_/eye_tracking_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_/eye_tracking_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/dlib/mean.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/dlib/shape_predictor_68_face_landmarks.dat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/dlib/std.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/get-models.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/openface/celeb-classifier.nn4.small2.v1.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/openface/nn2.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/openface/nn4.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/openface/nn4.small1.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/openface/nn4.small2.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/openface/nn4.small2.v1.t7" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/openface/resnet1.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/openface/vgg-face.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/models/openface/vgg-face.small1.def.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/test2.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_/test2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +70,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectId" id="2ANPjGjGW8Zh6UDL24wtZYu0M9w" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -47,7 +86,7 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/dl_study&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/eye_tracking&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
 }</component>
@@ -78,27 +117,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test_/common_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="contour_detector_single_debug" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="eye_tracking" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/pupil_detect" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/pupil_detect/contour_detector_single_debug.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -170,8 +188,29 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="test2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="eye_tracking" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test_" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test_/test2.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
-      <item itemvalue="Python.contour_detector_single_debug" />
+      <item itemvalue="Python.test2" />
       <item itemvalue="Python.common_test" />
       <item itemvalue="Python.data_geter" />
       <item itemvalue="Python.eye_tracking_test" />
@@ -180,10 +219,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.eye_tracking_test" />
-        <item itemvalue="Python.data_geter" />
         <item itemvalue="Python.eye_tracking" />
         <item itemvalue="Python.common_test" />
-        <item itemvalue="Python.contour_detector_single_debug" />
+        <item itemvalue="Python.data_geter" />
+        <item itemvalue="Python.test2" />
       </list>
     </recent_temporary>
   </component>

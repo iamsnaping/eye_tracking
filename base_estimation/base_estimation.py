@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 
 from eye_utils import utils as util
@@ -45,45 +43,60 @@ class base_estimation(object):
     #     return cross_ratio_x,cross_ratio_y
 
 
+# g1 m1(x) m0(w/2) g0(w)
+# ((w-w/2)*x)/((w-x)w/2)
+# g2
+# m2(y)
+# m3(h/2)
+# g3(h)
 
-    #m0-m1 * g0-g1 /m1-g1 * g0-m0
-    # x_1 m0-m1
-    # x_2 g0-g1
-    # x_3 g1-m1
-    # x_4 g0-m0
-    # y_1 m2-m3
-    # y_2 g1-g2
-    # y_3 g1-m2
-    # y_4 g2-m3
+    #g0-m0 * m1-g1 /g0-m1 * m0-g1
+    #g3-m3*m2-g2/g3-m2*m3-g2
     def cross_ratio(self,g,m):
         # print(g)
         # print(m)
-        x_1=m[0]-m[1]
-        x_2=g[0]-g[1]
-        x_3=g[1]-m[1]
-        x_4=g[0]-m[0]
-        y_1=m[2]-m[3]
-        y_2=g[1]-g[2]
-        y_3=g[1]-m[2]
-        y_4=g[2]-m[3]
-        x1=x_1/np.linalg.norm(x_1)
-        x2=x_2/np.linalg.norm(x_2)
-        x3=x_3/np.linalg.norm(x_3)
-        x4=x_4/np.linalg.norm(x_4)
-        cosa = (x1 @ x2) / (np.linalg.norm(x1) * np.linalg.norm(x2))
-        cosb = (x3 @ x4) / (np.linalg.norm(x3) * np.linalg.norm(x4))
-
-        # cross_ratio_x=util.get_cross(x_12,x_34)/util.get_cross(x_13,x_24)
-        # cross_ratio_y=util.get_cross(y_12,y_34)/util.get_cross(y_13,y_24)
+        x_1=g[0]-m[0]
+        x_2=m[1]-g[1]
+        x_3=g[0]-m[1]
+        x_4=m[0]-g[1]
+        y_1=g[3]-m[3]
+        y_2=m[2]-g[2]
+        y_3=g[3]-m[2]
+        y_4=m[3]-g[2]
+        x1=(g[0]-g[1])/np.linalg.norm(g[0]-g[1])
+        x2=x_3/np.linalg.norm(x_3)
+        x3=(g[3]-g[2])/np.linalg.norm(g[3]-g[2])
+        x4=y_3/np.linalg.norm(y_3)
+        #w-x
+        cosa = (x1 @ x2) / ((np.linalg.norm(x1) * np.linalg.norm(x2)))
+        cosb = (x3 @ x4) / ((np.linalg.norm(x3) * np.linalg.norm(x4)))
+        x2 = x_2 / np.linalg.norm(x_2)
+        x4 = y_2 / np.linalg.norm(y_2)
+        #x
+        cosc = (x1 @ x2) / ((np.linalg.norm(x1) * np.linalg.norm(x2)))
+        cosd = (x3 @ x4) / ((np.linalg.norm(x3) * np.linalg.norm(x4)))
         cross_ratio_x = np.linalg.norm(x_1)*np.linalg.norm(x_2) / (np.linalg.norm(x_3)*np.linalg.norm(x_4))
         cross_ratio_y = np.linalg.norm(y_1)*np.linalg.norm(y_2) / (np.linalg.norm(y_3)*np.linalg.norm(y_4))
-        if cosa>0:
-            cross_ratio_x*=(-1)
-        if cosb<0:
-            cross_ratio_y*=(-1)
-        # print(cosa,cosb)
+        # for _ in g:
+        #     print(_)
+        # print(m)
+        # print(x2,x1,cosc,cosa,cosd,cosb)
+        # print(cross_ratio_x,cross_ratio_y,end=' ')
+        if cosc<0:
+            cross_ratio_x=-(cross_ratio_x)/(1-cross_ratio_x)
+        elif cosa<0:
+            cross_ratio_x =cross_ratio_x/(cross_ratio_x-1)
+        else:
+            cross_ratio_x=cross_ratio_x/(1+cross_ratio_x)
+
+        if cosd < 0:
+            cross_ratio_y = -(cross_ratio_y) / (1 - cross_ratio_y)
+        elif cosb < 0:
+            cross_ratio_y = cross_ratio_y / (cross_ratio_y - 1)
+        else:
+            cross_ratio_y = cross_ratio_y / (1 + cross_ratio_y)
+
         # print(cross_ratio_x,cross_ratio_y)
-        # breakpoint()
         return cross_ratio_x,cross_ratio_y
 
 

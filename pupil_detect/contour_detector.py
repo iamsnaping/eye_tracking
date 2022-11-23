@@ -1,5 +1,4 @@
 import copy
-import math
 
 import cv2
 import numpy as np
@@ -65,8 +64,8 @@ class contour_with_ellipse(object):
         x, y = self.ellipse[0][0], self.ellipse[0][1]
         s = self.ellipse[1][0]/2
         l = self.ellipse[1][1]/2
-        angle = self.ellipse[2] * math.pi / 180
-        a_sin, a_cos = math.sin(angle), math.cos(angle)
+        angle = self.ellipse[2] * np.pi / 180
+        a_sin, a_cos = np.sin(angle), np.cos(angle)
         s_sin = abs(s * a_sin)
         s_cos = abs(s * a_cos)
         l_sin = abs(l * a_sin)
@@ -115,7 +114,7 @@ class contour_with_ellipse(object):
             self.fusion(contour)
         return flag
     def add_offset(self,offset):
-        center = (math.ceil(self.contour.ellipse[0][0]) + offset[0], math.ceil(self.contour.ellipse[0][1]) + offset[1])
+        center = (np.ceil(self.contour.ellipse[0][0]) + offset[0], np.ceil(self.contour.ellipse[0][1]) + offset[1])
         self.ellipse=(center,self.ellipse[1],self.ellipse[2])
 
 
@@ -201,7 +200,7 @@ class PuRe_params(object):
         self.r_th = 0.5
         self.threshold1 = 40
         self.threshold2 = 80
-        self.kernel = np.zeros((11, 11), dtype=np.float64)
+        self.kernel = np.zeros((11, 11), dtype=np.float32)
         self.g_threshold = 50
         for i in range(11):
             for j in range(11):
@@ -230,7 +229,7 @@ class PuRe(object):
             self.threshold1 = 40
             self.threshold2 = 80
             self.g_threshold = 50
-            self.kernel = np.zeros((11, 11), dtype=np.float64)
+            self.kernel = np.zeros((11, 11), dtype=np.float32)
             for i in range(11):
                 for j in range(11):
                     if (np.abs(i - 5) ** 2) + (np.abs(j - 5) ** 2) <= 16:
@@ -303,7 +302,7 @@ class PuRe(object):
         img = cv2.Canny(img, self.threshold1, self.threshold2)
         du.show_ph(img,'canny_img')
         contours, hierarchy = cv2.findContours(img, cv2.RETR_LIST, self.find_contour_param)
-        maxlen = math.ceil(self.pd_max * math.pi)
+        maxlen = np.ceil(self.pd_max * np.pi)
         c_len = len(contours)
         flags = [0 for i in range(c_len)]
         for i in range(c_len):
@@ -317,18 +316,18 @@ class PuRe(object):
             # tes_img=cv2.cvtColor(tes_img,cv2.COLOR_GRAY2RGB)
             # rth=ellipse[1][0]/ellipse[1][1]
             # print(f'rth: {rth}')
-            # center = (math.ceil(ellipse[0][0]), math.ceil(ellipse[0][1]))
-            # axes = (math.ceil(ellipse[1][0]), math.ceil(ellipse[1][1]))
+            # center = (np.ceil(ellipse[0][0]), np.ceil(ellipse[0][1]))
+            # axes = (np.ceil(ellipse[1][0]), np.ceil(ellipse[1][1]))
             # tes_img = cv2.ellipse(tes_img, [center, axes, ellipse[2]], color=(0, 255, 0))
             # du.show_ph(tes_img, 'tes')
             x = ellipse[0][1]
             y = ellipse[0][0]
-            horizon = abs(ellipse[1][1] * math.cos(ellipse[2] * math.pi / 180))
-            vertical = abs(ellipse[1][1] * math.sin(ellipse[2] * math.pi / 180))
+            horizon = abs(ellipse[1][1] * np.cos(ellipse[2] * np.pi / 180))
+            vertical = abs(ellipse[1][1] * np.sin(ellipse[2] * np.pi / 180))
             nums = np.array([x, y, y + horizon, y - horizon, x + vertical, x - vertical])
             if not (0 <= nums.all() < 200):
                 continue
-            if math.isnan(ellipse[1][0]) or math.isnan(ellipse[1][1]):
+            if np.isnan(ellipse[1][0]) or np.isnan(ellipse[1][1]):
                 continue
             rth = ellipse[1][0] / ellipse[1][1]
             if rth < self.r_th:
@@ -438,12 +437,12 @@ class PuRe(object):
 def draw_ellipse(drawed_img, c,offset=None):
     if offset is None:
         for contour in c:
-            center = (math.ceil(contour.ellipse[0][0]), math.ceil(contour.ellipse[0][1]))
-            axes = (math.ceil(contour.ellipse[1][0]), math.ceil(contour.ellipse[1][1]))
+            center = (np.ceil(contour.ellipse[0][0]), np.ceil(contour.ellipse[0][1]))
+            axes = (np.ceil(contour.ellipse[1][0]), np.ceil(contour.ellipse[1][1]))
             drawed_img = cv2.ellipse(drawed_img, [center, axes, contour.ellipse[2]], color=(0, 255, 0))
     else:
         for contour in c:
-            center = (math.ceil(contour.ellipse[0][0])+offset[0], math.ceil(contour.ellipse[0][1])+offset[1])
-            axes = (math.ceil(contour.ellipse[1][0]), math.ceil(contour.ellipse[1][1]))
+            center = (np.ceil(contour.ellipse[0][0])+offset[0], np.ceil(contour.ellipse[0][1])+offset[1])
+            axes = (np.ceil(contour.ellipse[1][0]), np.ceil(contour.ellipse[1][1]))
             drawed_img = cv2.ellipse(drawed_img, [center, axes, contour.ellipse[2]], color=(0, 255, 0))
     return drawed_img

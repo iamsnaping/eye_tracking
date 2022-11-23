@@ -1,56 +1,110 @@
 import copy
-import math
+import functools
 
 import cv2
 import numpy as np
 import os
 from eye_utils import data_util as du
+import itertools
 
 '''
 we need blurred img 
 GaussianBlur((3,3),1)
 @glint_max_area:param pixels
 '''
+compare_vecs = np.array([[0.0, 0.28245639148673435, 0.16729039025910034, 0.2219733258380298, 0.32827989241613537],
+                         [0.2824563914867344, 0.0, 0.3282798924161354, 0.22197332583802984, 0.16729039025910036],
+                         [0.18197378541807696, 0.3570936418229411, 0.0, 0.15368444753933694, 0.30724812521964495],
+                         [0.3055320406992954, 0.3055320406992954, 0.19446795930070465, 0.0, 0.19446795930070465],
+                         [0.3570936418229411, 0.18197378541807696, 0.30724812521964495, 0.15368444753933694, 0.0]])
+
 
 def get_five_points(unchosen_points):
-    chosen_points=[unchosen_points[0]]
-    vectors=np.array([[0,1],[1,0],[0,-1],[-1,0]])
-    u_len=len(unchosen_points)
-    flags=[False for i in range(u_len)]
-    flags[0]=True
-    threshold1=math.cos(math.pi/10)
+    def cmp(a, b):
+        if np.abs(a[1] - b[1]) < 5:
+            if a[0] < b[0]:
+                return -1
+            return 1
+        if a[1] < b[1]:
+            return -1
+        return 1
+
+    base_point = unchosen_points[0]
+    unchosen_points.sort(key=functools.cmp_to_key(cmp))
+    chosen_points = []
+    cross_value = 0.
+    print(f'this is poitns len {len(unchosen_points)}')
+    for points in itertools.combinations(unchosen_points, 5):
+        index = -1
+        l = []
+        t = 0
+        if points[0][0] <points[1][0] <points[2][0]:
+            continue
+        if not -5<(points[0][1]-points[1][1])<5:
+            continue
+        values_y=np.array([points[2][1]-points[3][1],points[3][1]-points[4][1]])
+        print(f'this is values_y {values_y}')
+        if values_y.max()>5 or values_y.min()<-5:
+            continue
+        for p in points:
+            if p[2] == base_point[2]:
+                index = t
+            dis = np.linalg.norm(base_point[0:2] - p[0:2])
+            l.append(dis)
+            t += 1
+        if index==-1:
+            continue
+        l = np.array(l)
+        l /= l.sum()
+        print(f'this is l {l}')
+        if l.max()>0.4:
+            continue
+        cvs = l @ compare_vecs[index]
+        if cvs > cross_value:
+            cross_value = cvs
+            chosen_points = points
+    print(f'this is cross_value{cross_value}')
+    # if cross_value < 0.2:
+    #     return []
+    return chosen_points
+    vectors = np.array([[0, 1], [1, 0], [0, -1], [-1, 0]])
+    u_len = len(unchosen_points)
+    flags = [False for i in range(u_len)]
+    flags[0] = True
+    threshold1 = np.cos(np.pi / 8)
     for p in chosen_points:
         for i in range(u_len):
             if flags[i]:
                 continue
-            vec=unchosen_points[i]-p
-            flag=False
+            vec = unchosen_points[i] - p
+            flag = False
             for vector in vectors:
-                angle=(vec@vector)/np.linalg.norm(vec)
-                if angle>threshold1:
-                    flag=True
+                angle = (vec @ vector) / np.linalg.norm(vec)
+                if angle > threshold1:
+                    flag = True
                     break
             if not flag:
                 continue
-            flags[i]=True
-            flag=0
-            dirs=[False,False,False,False]
+            flags[i] = True
+            flag = 0
+            dirs = [False, False, False, False]
             for j in range(u_len):
-                vec=unchosen_points[i]-unchosen_points[j]
+                vec = unchosen_points[i] - unchosen_points[j]
                 if np.linalg.norm(vec) == 0:
                     continue
                 for k in range(4):
                     if dirs[k]:
                         continue
                     angle = (vec @ vectors[k]) / np.linalg.norm(vec)
-                    if angle>threshold1:
-                        flag+=1
-                        dirs[k]=True
-            if flag>=2:
+                    if angle > threshold1:
+                        flag += 1
+                        dirs[k] = True
+            if flag >= 2:
                 chosen_points.append(unchosen_points[i])
             else:
-                flags[i]=False
+                flags[i] = False
     return flags
+
 
 
 class contour_with_ellipse(object):
@@ -74,9 +128,14 @@ class contour_with_ellipse(object):
         c_len = len(self.contour)
         points_inline = 0.0
         points_outline = 0.0
-        for points in self.contour:
-            vec_x = points[0][0] - x
-            vec_y = points[0][1] - y
+        points = [i for i in range(c_len)]
+        if c_len > 15:
+            points = [i for i in range(0, c_len, c_len // 15)]
+        c_len = len(points)
+        # print(f'{points}')
+        for p in points:
+            vec_x = self.contour[p][0][0] - x
+            vec_y = self.contour[p][0][1] - y
             if vec_x > 0 and vec_y > 0:
                 quadrant[0] += 1
             if vec_x > 0 and vec_y < 0:
@@ -85,36 +144,39 @@ class contour_with_ellipse(object):
                 quadrant[2] += 1
             if vec_x < 0 and vec_y > 0:
                 quadrant[3] += 1
-            _x, _y = [int(x), min(199,int(vec_x*2  + x))], [int(y), min(199,int(vec_y*2 + y))]
+            x = min(139, int(x))
+            y = min(int(y), 139)
+            _x, _y = [x, min(139, int(vec_x * 2 + x))], [int(y), min(139, int(vec_y * 2 + y))]
             inline_p, outline_p = img[_y, _x]
             points_inline += float(inline_p)
             points_outline += float(outline_p)
-            # print(inline_p,outline_p)
         quadrant /= c_len
         quadrant -= 0.25
         self.theta = (1.5 - np.abs(quadrant).sum()) / 1.5
         res = (points_outline - points_inline) / c_len
-        print(res)
-        if -70<res <= 30:
+        if -70 < res <= 30:
             self.gamma = 0
         else:
-            self.gamma = math.fabs(res) / 255
+            self.gamma = np.fabs(res) / 255
+        # print(res)
         self.psi = (self.rou + self.theta + self.gamma) / 3
 
     def get_rectangle(self):
         x, y = self.ellipse[0][0], self.ellipse[0][1]
-        s = self.ellipse[1][0]/2
-        l = self.ellipse[1][1]/2
-        angle = self.ellipse[2] * math.pi / 180
-        a_sin, a_cos = math.sin(angle), math.cos(angle)
+        s = self.ellipse[1][0] / 2
+        l = self.ellipse[1][1] / 2
+        angle = self.ellipse[2] * np.pi / 180
+        a_sin, a_cos = np.sin(angle), np.cos(angle)
         s_sin = abs(s * a_sin)
         s_cos = abs(s * a_cos)
         l_sin = abs(l * a_sin)
         l_cos = abs(l * a_cos)
         if (90 < self.ellipse[2] < 180) or (270 < self.ellipse[2] < 360):
-            return np.array([[x+l_sin+s_cos,y+l_cos-s_sin],[x+l_sin-s_cos,y+l_cos+s_sin],[x-l_sin+s_cos,y-l_cos-s_sin],[x-l_sin-s_cos,y-l_cos+s_sin]])
+            return np.array([[x + l_sin + s_cos, y + l_cos - s_sin], [x + l_sin - s_cos, y + l_cos + s_sin],
+                             [x - l_sin + s_cos, y - l_cos - s_sin], [x - l_sin - s_cos, y - l_cos + s_sin]])
         else:
-            return np.array([[x-l_sin+s_cos,y+l_cos+s_cos],[x-l_sin-s_cos,y+l_cos-s_cos],[x+l_sin-s_cos,y-l_cos-l_sin],[x+l_sin+s_cos,y-l_cos+l_sin]])
+            return np.array([[x - l_sin + s_cos, y + l_cos + s_cos], [x - l_sin - s_cos, y + l_cos - s_cos],
+                             [x + l_sin - s_cos, y - l_cos - l_sin], [x + l_sin + s_cos, y - l_cos + l_sin]])
 
     def fusion(self, contour, dis=None):
         if dis is None:
@@ -154,15 +216,16 @@ class contour_with_ellipse(object):
             self.get_scores(img)
             self.fusion(contour)
         return flag
-    def add_offset(self,offset):
-        center = (math.ceil(self.ellipse[0][0]) + offset[0], math.ceil(self.ellipse[0][1]) + offset[1])
-        self.ellipse=(center,self.ellipse[1],self.ellipse[2])
+
+    def add_offset(self, offset):
+        center = (np.ceil(self.ellipse[0][0]) + offset[0], np.ceil(self.ellipse[0][1]) + offset[1])
+        self.ellipse = (center, self.ellipse[1], self.ellipse[2])
 
 
 def img_filter(img, filters, threshold=0, degrade=0, fill_up=0):
     filter_len = len(filters[0])
     filtered = img.copy()
-    width,length=img.shape
+    width, length = img.shape
     for i in range(width):
         for j in range(length):
             t = -1
@@ -172,7 +235,7 @@ def img_filter(img, filters, threshold=0, degrade=0, fill_up=0):
                 for k in range(degrade, filter_len):
                     a = i + filter[k][0]
                     b = j + filter[k][1]
-                    if not (a > 0 and a < 200) or not (b > 0 and b < 200):
+                    if not (a > 0 and a < 140) or not (b > 0 and b < 140):
                         break
                     flag += int(img[a][b])
                 if flag == threshold:
@@ -199,7 +262,7 @@ def img_filters(img, filters, threshold=None, degrade=None, fill_up=None, filter
             threshold.append((i + j) * 255)
     filters_len = len(filters)
     filtered = img.copy()
-    width,length=img.shape
+    width, length = img.shape
     for i in range(width):
         for j in range(length):
             for l in range(filters_len):
@@ -210,7 +273,7 @@ def img_filters(img, filters, threshold=None, degrade=None, fill_up=None, filter
                     for k in range(degrade[l], filter_len[l]):
                         a = i + filter[k][0]
                         b = j + filter[k][1]
-                        if not (a > 0 and a < 200) or not (b > 0 and b < 200):
+                        if not (a > 0 and a < 140) or not (b > 0 and b < 140):
                             break
                         flag += int(img[a][b])
                     if flag == threshold[l]:
@@ -242,7 +305,7 @@ class PuRe_params(object):
         self.r_th = 0.5
         self.threshold1 = 40
         self.threshold2 = 80
-        self.kernel = np.zeros((11, 11), dtype=np.float64)
+        self.kernel = np.zeros((11, 11), dtype=np.float32)
         self.g_threshold = 50
         self.p_binary_threshold = 35
         self.g_binary_threshold = 135
@@ -273,9 +336,9 @@ class PuRe(object):
             self.threshold1 = 40
             self.threshold2 = 80
             self.g_threshold = 50
-            self.kernel = np.zeros((11, 11), dtype=np.float64)
-            self.p_binary_threshold=35
-            self.g_binary_threshold=135
+            self.kernel = np.zeros((11, 11), dtype=np.float32)
+            self.p_binary_threshold = 35
+            self.g_binary_threshold = 135
             for i in range(11):
                 for j in range(11):
                     if (np.abs(i - 5) ** 2) + (np.abs(j - 5) ** 2) <= 16:
@@ -328,8 +391,8 @@ class PuRe(object):
         self.threshold2 = params.threshold2
         self.kernel = params.kernel
         self.g_threshold = params.g_threshold
-        self.p_binary_threshold=params.p_binary_threshold
-        self.g_binary_threshold=params.g_binary_threshold
+        self.p_binary_threshold = params.p_binary_threshold
+        self.g_binary_threshold = params.g_binary_threshold
 
     def filter_thin(self, img):
         filter_img = img_filter(img, self.filter_1, 255 * 3, degrade=1)
@@ -343,84 +406,104 @@ class PuRe(object):
         filter_img = img_filters(img, self.filter_3, degrade=[1, 1, 1, 1], fill_up=[0, 0, 0, 0],
                                  filter_len=[4, 7, 5, 6])
         return filter_img
+
     # binary img
-    def find_contours(self, img,d_min,d_max):
-        g_contours=[]
-        du.show_ph(img)
-        img = cv2.Canny(img, self.threshold1, self.threshold2)
-        contours, hierarchy = cv2.findContours(img, cv2.RETR_LIST, self.find_contour_param)
+    def find_contours(self, img, d_min, d_max, rec_filter=False):
+        g_contours = []
+        canny_img = cv2.Canny(img, self.threshold1, self.threshold2)
+        contours, hierarchy = cv2.findContours(canny_img, cv2.RETR_LIST, self.find_contour_param)
         c_len = len(contours)
+        i_img = np.zeros_like(img)
+        i_img = cv2.cvtColor(i_img, cv2.COLOR_GRAY2RGB)
         for i in range(c_len):
             if len(contours[i]) < 5:
                 continue
             ellipse = cv2.fitEllipseAMS(contours[i])
             x = ellipse[0][1]
             y = ellipse[0][0]
-            horizon = abs(ellipse[1][1] * math.cos(ellipse[2] * math.pi / 180))
-            vertical = abs(ellipse[1][1] * math.sin(ellipse[2] * math.pi / 180))
+            horizon = abs(ellipse[1][1] * np.cos(ellipse[2] * np.pi / 180))
+            vertical = abs(ellipse[1][1] * np.sin(ellipse[2] * np.pi / 180))
             nums = np.array([x, y, y + horizon, y - horizon, x + vertical, x - vertical])
-            if not (0 <= nums.all() < 200):
+            if nums.max() >= 140:
                 continue
-            if math.isnan(ellipse[1][0]) or math.isnan(ellipse[1][1]):
+            if nums.min() < 0:
                 continue
+            if np.isnan(ellipse[1][0]) or np.isnan(ellipse[1][1]):
+                continue
+            if img[int(x)][int(y)] < 20:
+                if ellipse[1][0] > 10:
+                    if img[int(x) + 10][int(y)] < 20:
+                        continue
+                else:
+                    continue
             rth = ellipse[1][0] / ellipse[1][1]
             if rth < self.r_th:
                 continue
-            if not d_min<=(ellipse[1][0])<=d_max:
+            if not d_min <= (ellipse[1][0]) <= d_max:
                 continue
-            if not d_min<=(ellipse[1][1])<=d_max:
+            if not d_min <= (ellipse[1][1]) <= d_max:
                 continue
-            g_contours.append(contour_with_ellipse(c=contours[i],e=ellipse))
+            if rec_filter:
+                rec = cv2.minAreaRect(contours[i])
+                r_f = rec[1][0] / rec[1][1]
+                print(rec[1])
+                if r_f > 1:
+                    r_f = 1 / r_f
+                if r_f < 0.5:
+                    continue
+            a = contour_with_ellipse(c=contours[i], e=ellipse)
+            i_img = draw_ellipse(i_img, [a])
+            i_img = cv2.drawContours(i_img, contours, i, (255, 255, 255))
+            # du.show_ph(i_img)
+            g_contours.append(contour_with_ellipse(c=contours[i], e=ellipse))
+
         return self.fusion_contours(g_contours)
 
     ## pupil->list [x,y,d**2] img:origin img
 
-    def fusion_contours(self,contours):
-        c_len=len(contours)
-        flags=[True for i in range(c_len)]
-        g_contours=[]
+    def fusion_contours(self, contours):
+        c_len = len(contours)
+        flags = [True for i in range(c_len)]
+        g_contours = []
         for i in range(c_len):
-            if flags[i]==False:
+            if flags[i] == False:
                 continue
-            for j in range(i+1,c_len):
-                res=contours[i].fusion(contours[j],dis=5)
-                if res==True:
-                    flags[j]=False
+            for j in range(i + 1, c_len):
+                res = contours[i].fusion(contours[j], dis=5)
+                if res == True:
+                    flags[j] = False
             g_contours.append(contours[i])
         return g_contours
 
     def get_glints(self, img, contours, pupil):
-        glint_contours=[]
-        flags=[]
+        glint_contours = []
+        flags = []
         for contour in contours:
             dis = ((pupil[0] - contour.ellipse[0][0]) ** 2) + ((pupil[1] - contour.ellipse[0][1]) ** 2)
             if dis > pupil[2]:
                 continue
-            contour.get_scores(img)
-            print(contour.ellipse,contour.gamma,dis)
-            if contour.gamma==0:
-                continue
-            flags.append([contour,dis])
-        flags.sort(key=lambda x:x[1])
-        points=[]
+            # contour.get_scores(img)
+            # print(contour.ellipse, contour.gamma, dis)
+            # if contour.gamma == 0:
+            #     continue
+            flags.append([contour, dis])
+        flags.sort(key=lambda x: x[1])
+        points = []
+        t = 0
         for flag in flags:
-            points.append(np.array([flag[0].ellipse[0][0],flag[0].ellipse[0][1]],dtype=np.float64))
-        print(points)
-        contour_flags=get_five_points(points)
-        print(contour_flags)
-        for contour_flag,flag in zip(contour_flags,flags):
-            if contour_flag:
-                glint_contours.append(flag[0])
+            points.append(np.array([flag[0].ellipse[0][0], flag[0].ellipse[0][1], t], dtype=np.float32))
+            t += 1
+        contour_flags = get_five_points(points)
+        for cf in contour_flags:
+            glint_contours.append(flags[int(cf[2])][0])
         return glint_contours[0:self.glints_num]
 
-
-
-    #origin img
+    # origin img
     def get_pupils(self, contours, img):
         c_len = len(contours)
         index = 0
         psi = -1
-        if c_len==0:
+        if c_len == 0:
             return False
         for i in range(c_len):
             contours[i].get_scores(img)
@@ -429,7 +512,7 @@ class PuRe(object):
                 index = i
         return contours[index]
 
-    #gray img
+    # gray img
     def detect(self, img):
         pupil_img = cv2.threshold(img, self.p_binary_threshold, 255, cv2.THRESH_BINARY_INV)[1]
         res1 = cv2.connectedComponentsWithStatsWithAlgorithm(pupil_img, connectivity=8, ltype=cv2.CV_32S,
@@ -450,46 +533,99 @@ class PuRe(object):
             if dis > 20:
                 continue
             pupils.append(centroid)
-        if len(pupils)<=1:
+            print(dis)
+        if len(pupils) <= 1:
             return False
-        img_1 = img[int(pupils[0][1]) - 100:int(pupils[0][1]) + 100, int(pupils[0][0]) - 100:int(pupils[0][0]) + 100]
-        img_2 = img[int(pupils[1][1]) - 100:int(pupils[1][1]) + 100, int(pupils[1][0]) - 100:int(pupils[1][0]) + 100]
-        img_1_origin = (int(pupils[0][0]) - 100, int(pupils[0][1]) - 100)
-        img_2_origin = (int(pupils[1][0]) - 100, int(pupils[1][1]) - 100)
+        color_i = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+        rec_i = cv2.rectangle(color_i, (int(pupils[0][0]) - 70, int(pupils[0][1]) - 70),
+                              (int(pupils[0][0]) + 70, int(pupils[0][1]) + 70), color=(0, 255, 0), thickness=2)
+        rec_i = cv2.rectangle(rec_i, (int(pupils[1][0]) - 70, int(pupils[1][1]) - 70),
+                              (int(pupils[1][0]) + 70, int(pupils[1][1]) + 70), color=(0, 255, 0), thickness=2)
+        cv2.imwrite('C:\\Users\\snapping\\Desktop\\rec.png', rec_i)
+        img_1 = img[int(pupils[0][1]) - 70:int(pupils[0][1]) + 70, int(pupils[0][0]) - 70:int(pupils[0][0]) + 70]
+        img_2 = img[int(pupils[1][1]) - 70:int(pupils[1][1]) + 70, int(pupils[1][0]) - 70:int(pupils[1][0]) + 70]
+        img_1_origin = (int(pupils[0][0]) - 70, int(pupils[0][1]) - 70)
+        img_2_origin = (int(pupils[1][0]) - 70, int(pupils[1][1]) - 70)
+        cv2.imwrite('C:\\Users\\snapping\\Desktop\\left.png', img_1)
+        cv2.imwrite('C:\\Users\\snapping\\Desktop\\right.png', img_2)
         img_1 = cv2.GaussianBlur(img_1, (3, 3), 3)
         img_2 = cv2.GaussianBlur(img_2, (3, 3), 3)
-        pupil_img_1=cv2.threshold(img_1,self.p_binary_threshold,255,cv2.THRESH_BINARY_INV)[1]
-        glint_img_1=cv2.threshold(img_1,self.g_binary_threshold,255,cv2.THRESH_BINARY)[1]
-        pupil_img_2 = cv2.threshold(img_2, self.p_binary_threshold, 255, cv2.THRESH_BINARY_INV)[1]
+        best_contours1 = []
+        best_contours2 = []
+        benchmark_1 = 0
+        benchmark_2 = 0
+        for i in range(40, 56, 5):
+            pupil_img_1 = cv2.threshold(img_1, i, 255, cv2.THRESH_BINARY_INV)[1]
+            pupil_img_2 = cv2.threshold(img_2, i, 255, cv2.THRESH_BINARY_INV)[1]
+            # du.show_ph(pupil_img_1)
+            # du.show_ph(pupil_img_2)
+            pupil_contours_1 = self.find_contours(pupil_img_1, self.pd_min, self.pd_max, True)
+            pupil_contours_2 = self.find_contours(pupil_img_2, self.pd_min, self.pd_max, True)
+            p_contours_1 = self.get_pupils(pupil_contours_1, img_1)
+            p_contours_2 = self.get_pupils(pupil_contours_2, img_2)
+            i1 = img_1.copy()
+            i2 = img_2.copy()
+            if not isinstance(p_contours_1, bool):
+                i1 = draw_ellipse(i1, [p_contours_1])
+                # du.show_ph(i1,name='left')
+                b1 = p_contours_1.ellipse[1][0] / p_contours_1.ellipse[1][1]
+                if b1 > benchmark_1:
+                    benchmark_1 = b1
+                    best_contours1 = p_contours_1
+            if not isinstance(p_contours_2, bool):
+                i2 = draw_ellipse(i2, [p_contours_2])
+                # du.show_ph(i2, name='left')
+                b2 = p_contours_2.ellipse[1][0] / p_contours_2.ellipse[1][1]
+                if b2 > benchmark_2:
+                    benchmark_2 = b2
+                    best_contours2 = p_contours_2
+            print(f'benchmark {benchmark_1, benchmark_2} {p_contours_1} {p_contours_2}')
+            if benchmark_1 > 0.95 and benchmark_2 > 0.95:
+                break
+
+        p_contours_1 = best_contours1
+        p_contours_2 = best_contours2
+
+        glint_img_1 = cv2.threshold(img_1, self.g_binary_threshold, 255, cv2.THRESH_BINARY)[1]
         glint_img_2 = cv2.threshold(img_2, self.g_binary_threshold, 255, cv2.THRESH_BINARY)[1]
         print('begin-----------------')
-        glint_contours_1 = self.find_contours(glint_img_1,self.gd_min,self.gd_max)
+        glint_contours_1 = self.find_contours(glint_img_1, self.gd_min, self.gd_max)
         print(len(glint_contours_1))
         print('end-------------------')
         print('begin2-----------------')
         glint_contours_2 = self.find_contours(glint_img_2, self.gd_min, self.gd_max)
         print(len(glint_contours_2))
         print('end2-------------------')
-        pupil_contours_1=self.find_contours(pupil_img_1,self.pd_min,self.pd_max)
-        pupil_contours_2 = self.find_contours(pupil_img_2, self.pd_min, self.pd_max)
-        p_contours_1 = self.get_pupils(pupil_contours_1, img_1)
-        p_contours_2 = self.get_pupils(pupil_contours_2, img_2)
-        if isinstance(p_contours_2,bool) or isinstance(p_contours_1,bool):
+        du.show_ph(glint_img_1,name='left')
+        du.show_ph(glint_img_2,name='right')
+        print(p_contours_1)
+        print(p_contours_2)
+        print(p_contours_1.ellipse)
+        print(p_contours_2.ellipse)
+        if isinstance(p_contours_2, bool) or isinstance(p_contours_1, bool):
             return False
-        g_contours_1=[]
-        g_contours_2=[]
-        if isinstance(p_contours_1,contour_with_ellipse):
+        g_contours_1 = []
+        g_contours_2 = []
+        if isinstance(p_contours_1, contour_with_ellipse):
             pupil = [p_contours_1.ellipse[0][0], p_contours_1.ellipse[0][1],
-                     (((p_contours_1.ellipse[1][0] + p_contours_1.ellipse[1][1]) / 2) ** 2)*4]
+                     (((p_contours_1.ellipse[1][0] + p_contours_1.ellipse[1][1]) / 2) ** 2) * 4]
             print('second------------------------------------------------------------------------------')
             g_contours_1 = self.get_glints(img_1, glint_contours_1, pupil)
             print('second------------------------------------------------------------------------------')
-        if isinstance(p_contours_2,contour_with_ellipse):
+        if isinstance(p_contours_2, contour_with_ellipse):
             pupil = [p_contours_2.ellipse[0][0], p_contours_2.ellipse[0][1],
-                     (((p_contours_2.ellipse[1][0] + p_contours_2.ellipse[1][1]) / 2) ** 2)*4]
+                     (((p_contours_2.ellipse[1][0] + p_contours_2.ellipse[1][1]) / 2) ** 2) * 4]
             print('third------------------------------------------------------------------------------')
-            g_contours_2=(self.get_glints(img_2, glint_contours_2, pupil))
+            g_contours_2 = (self.get_glints(img_2, glint_contours_2, pupil))
             print('third------------------------------------------------------------------------------')
+        img_1 = cv2.cvtColor(img_1, cv2.COLOR_GRAY2RGB)
+        img_2 = cv2.cvtColor(img_2, cv2.COLOR_GRAY2RGB)
+        draw_img_1 = draw_ellipse(img_1, g_contours_1)
+        draw_img_1 = draw_ellipse(draw_img_1, [p_contours_1])
+        draw_img_2 = draw_ellipse(img_2, g_contours_2)
+        draw_img_2 = draw_ellipse(draw_img_2, [p_contours_2])
+        cv2.imwrite('C:\\Users\\snapping\\Desktop\\dleft.png', draw_img_1)
+        cv2.imwrite('C:\\Users\\snapping\\Desktop\\dright.png', draw_img_2)
         p_contours_1.add_offset(img_1_origin)
         p_contours_2.add_offset(img_2_origin)
         for contour in g_contours_1:
@@ -501,7 +637,7 @@ class PuRe(object):
 
 def draw_ellipse(drawed_img, c):
     for contour in c:
-        center = (math.ceil(contour.ellipse[0][0]), math.ceil(contour.ellipse[0][1]))
-        axes = (math.ceil(contour.ellipse[1][0]), math.ceil(contour.ellipse[1][1]))
+        center = (np.ceil(contour.ellipse[0][0]), np.ceil(contour.ellipse[0][1]))
+        axes = (np.ceil(contour.ellipse[1][0]), np.ceil(contour.ellipse[1][1]))
         drawed_img = cv2.ellipse(drawed_img, [center, axes, contour.ellipse[2]], color=(0, 255, 0))
     return drawed_img
