@@ -475,7 +475,7 @@ class eye_tracker:
                 if not isinstance(res, str):
                     valid+=1
                     u_point=res/52.78*1920
-                    if np.linalg.norm(u_point-point)>20:
+                    if np.linalg.norm(u_point-point)>30:
                         point=u_point
                 print(res)
             pyautogui.moveTo(point[0],point[1])
