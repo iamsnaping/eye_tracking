@@ -1,11 +1,11 @@
-
 import os
 import threading
+from datetime import datetime
 
 import numpy as np
 import pynput.keyboard
 
-from base_estimation.plcr import  plcr as bp
+from base_estimation.plcr import plcr as bp
 from pupil_detect import contour_detector_single as cds
 import cv2
 from pupil_detect import contour_detector_single_debug as cdsd
@@ -16,50 +16,53 @@ import multiprocessing
 import queue
 import sys
 from pynput import keyboard
+from data_geter.data_geter import *
+from PIL import ImageGrab
 
 
-STOP_FLAG=False
-
-EXIT_FLAG=False
+STOP_FLAG = False
+EXIT_FLAG = False
 
 
 def on_press(key):
-    if isinstance(key,pynput.keyboard.KeyCode):
-        if key.char=='q':
+    if isinstance(key, pynput.keyboard.KeyCode):
+        if key.char == 'q':
             global EXIT_FLAG
-            EXIT_FLAG=True
+            EXIT_FLAG = True
             return False
 
-q=queue.Queue(30)
 
-root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.26\\wtc1\\cali'
-root_path='C:\\Users\\snapping\\Desktop\\data\\2022.11.8\\wtc\\cali\\0'
-from data_geter.data_geter import *
+q = queue.Queue(30)
+
+root_path = 'C:\\Users\\snapping\\Desktop\\data\\2022.10.26\\wtc1\\cali'
+root_path = 'C:\\Users\\snapping\\Desktop\\data\\2022.11.8\\wtc\\test\\33'
+
+
 # root_path='C:\\Users\\snapping\\Desktop\\data\\2022.10.25\\wq'
-pic_path=os.path.join(root_path,'0.png')
-img=cv2.imread(pic_path)
-
+pic_path = os.path.join(root_path, '0.png')
+img = cv2.imread(pic_path)
 
 params = cds.PuRe_params()
-params.threshold1=30
-params.threshold2=60
-params.r_th=0.3
-params.find_contour_param=cv2.CHAIN_APPROX_NONE
-params.gd_max=20
-params.gd_min=1
-params.glints_num=5
-params.pd_min=30
-params.pd_max=80
-params.g_threshold=30
-params.p_binary_threshold=45
-params.g_binary_threshold=145
+params.threshold1 = 30
+params.threshold2 = 60
+params.r_th = 0.3
+params.find_contour_param = cv2.CHAIN_APPROX_NONE
+params.gd_max = 20
+params.gd_min = 1
+params.glints_num = 5
+params.pd_min = 30
+params.pd_max = 80
+params.g_threshold = 30
+params.p_binary_threshold = 45
+params.g_binary_threshold = 145
 
-time_recoder=np.array([0.,0.])
-times_recorder=np.array([0.,0.])
+time_recoder = np.array([0., 0.])
+times_recorder = np.array([0., 0.])
+
 
 def get_pics(cap):
     while True:
-        ref,frame=cap.read()
+        ref, frame = cap.read()
         if STOP_FLAG:
             break
         if not q.full():
@@ -68,7 +71,7 @@ def get_pics(cap):
 
 def clear_q(t):
     global STOP_FLAG
-    STOP_FLAG=True
+    STOP_FLAG = True
     t.join()
     print(q.qsize())
     while not q.empty():
@@ -79,56 +82,62 @@ def record_time(type):
     def decorator(func):
         def inner():
             global time_recoder
-            start=timeit.default_timer()
+            start = timeit.default_timer()
             func()
-            end=timeit.default_timer()
-            time_recoder[type]+=end-start
+            end = timeit.default_timer()
+            time_recoder[type] += end - start
             return func
+
         return inner
+
     return decorator
 
 
 # nums=[19,2,21,23,28,29,3,30,5]
-nums=[0,3,4]
-skip_nums=[19]
+nums = [0, 1,2,3]
+skip_nums = [19]
 #
-root_path='C:\\Users\\snapping\\Desktop'
-debug_detector=cdsd.PuRe(params)
+
+debug_detector = cds.PuRe(params)
 # debug_detector=cds.PuRe(params)
-if __name__=='__main__':
+if __name__ == '__main__':
     for i in nums:
         if i in skip_nums:
             continue
-        img_path=os.path.join(root_path,str(i)+'.png')
+        img_path = os.path.join(root_path, str(i) + '.png')
         print(img_path)
         origin_img = cv2.imread(img_path)
-        gray_img=du.get_gray_pic(origin_img)
-        res=debug_detector.detect(gray_img)
-        img=cdsd.draw_ellipse(origin_img,res[0][0])
-        img=cdsd.draw_ellipse(img,res[1][0])
-        img=cdsd.draw_ellipse(img,[res[0][1]])
-        img=cdsd.draw_ellipse(img,[res[1][1]])
+        gray_img = du.get_gray_pic(origin_img)
+        res = debug_detector.detect(gray_img)
+        if isinstance(res,bool):
+            continue
+        img = cdsd.draw_ellipse(origin_img, res[0][0])
+        img = cdsd.draw_ellipse(img, res[1][0])
+        img = cdsd.draw_ellipse(img, [res[0][1]])
+        img = cdsd.draw_ellipse(img, [res[1][1]])
         for i in res[0][0]:
-            print(i.ellipse,end=' ')
+            print(i.ellipse, end=' ')
         print('')
         for i in res[1][0]:
-            print(i.ellipse,end=' ')
-        du.show_ph(img,name=str(i))
+            print(i.ellipse, end=' ')
+        du.show_ph(img, name=str(i))
         # breakpoint()
     breakpoint()
+
+
 def get_glints_sort(glints):
     glints.sort(key=lambda x: x[1])
-    sub_glints=glints[2:5]
-    sub_glints.sort(key=lambda x:x[0])
-    if glints[0][0]<glints[1][0]:
-        glints[0],glints[1]=glints[1],glints[0]
-    glints[2],glints[3],glints[4]=sub_glints[0],sub_glints[2],sub_glints[1]
+    sub_glints = glints[2:5]
+    sub_glints.sort(key=lambda x: x[0])
+    if glints[0][0] < glints[1][0]:
+        glints[0], glints[1] = glints[1], glints[0]
+    glints[2], glints[3], glints[4] = sub_glints[0], sub_glints[2], sub_glints[1]
 
 
 class eye_tracker:
     def __init__(self):
         params = cds.PuRe_params()
-        self.is_calibration=True
+        self.is_calibration = True
         params.threshold1 = 30
         params.threshold2 = 60
         params.r_th = 0.3
@@ -141,34 +150,39 @@ class eye_tracker:
         params.g_threshold = 30
         params.p_binary_threshold = 45
         params.g_binary_threshold = 145
-        self.average_mode=False
-        self.pure=cds.PuRe(params)
-        self.plcr=[bp.plcr(52.78,31.26),bp.plcr(52.78,31.26)]
+        self.average_mode = False
+        self.pure = cds.PuRe(params)
+        self.plcr = [bp.plcr(52.78, 31.26), bp.plcr(52.78, 31.26)]
         self.plcr[0]._rt = 220
         self.plcr[0]._radius = 0.78
         self.plcr[1]._rt = 220
         self.plcr[1]._radius = 0.78
-        self.origin_position=np.zeros(2,dtype=np.float32)
-    def set_params(self,params):
+        self.origin_position = np.zeros(2, dtype=np.float32)
+
+    def set_params(self, params):
         self.pure.set_params(params)
 
-    def set_d(self,x,y):
-        self.plcr[0]._rt=x
-        self.plcr[1]._rt=y
+    def set_d(self, x, y):
+        self.plcr[0]._rt = x*4
+        self.plcr[1]._rt = y*4
 
-    def set_calibration(self,vec,des):
-        if len(vec)==2:
-            self.plcr[0].set_calibration(vec[0],des[0])
-            self.plcr[1].set_calibration(vec[1],des[1])
-        else:
-            self.plcr[0]._is_calibration=False
+    def set_calibration(self, vec, des):
+        if len(vec) == 2:
+            self.plcr[0]._is_calibration = False
             self.plcr[1]._is_calibration = False
-            self.average_mode=True
+            self.plcr[0].set_calibration(vec[0], des[0])
+            self.plcr[1].set_calibration(vec[1], des[1])
+        else:
+            self.plcr[0]._is_calibration = True
+            self.plcr[1]._is_calibration = True
+            self.average_mode = True
+            self.is_calibration=False
             self.plcr[0].set_calibration(vec[0], des[0])
             self.plcr[1].set_calibration(vec[0], des[0])
-            self.vecs=vec[0]
-            self.des=des[0]
-    def get_estimation(self,num,eye_num):
+            self.vecs = vec[0]
+            self.des = des[0]
+
+    def get_estimation(self, num, eye_num):
         self.plcr[eye_num]._pupil_center = np.array([num[0][0], num[0][1], 0]).reshape((3, 1))
         self.plcr[eye_num]._param = np.array([0, 0, 0.62], dtype=np.float32).reshape((3, 1))
         self.plcr[eye_num].get_param()
@@ -186,39 +200,41 @@ class eye_tracker:
         self.plcr[eye_num].get_visual()
         self.plcr[eye_num].get_m_points()
         return self.plcr[eye_num].gaze_estimation()
-    def calibration_mode(self,mode):
-        self.is_calibration=mode
-        self.plcr[0]._is_calibration=mode
-        self.plcr[1]._is_calibration=mode
-    #binary img
-    def detect(self,img,img_p=None,f=False):
-        global time_recoder,times_recorder
-        time1=timeit.default_timer()
+
+    def calibration_mode(self, mode):
+        self.is_calibration = mode
+        self.plcr[0]._is_calibration = mode
+        self.plcr[1]._is_calibration = mode
+
+    # binary img
+    def detect(self, img, img_p=None, f=False):
+        global time_recoder, times_recorder
+        time1 = timeit.default_timer()
         res = self.pure.detect(img=img)
-        time2=timeit.default_timer()
-        times_recorder[0]+=1.
-        time_recoder[0]+=time2-time1
-        if not isinstance(f,bool):
-            f=self.pure.pupil_center
-        if isinstance(res,bool):
+        time2 = timeit.default_timer()
+        times_recorder[0] += 1.
+        time_recoder[0] += time2 - time1
+        if not isinstance(f, bool):
+            f = self.pure.pupil_center
+        if isinstance(res, bool):
             return 'can not detect glints or pupils'
         glints_l = []
-        glints_r=[]
+        glints_r = []
         sub_img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-        if len(res[0][0])<5 or len(res[1][0])<5:
+        if len(res[0][0]) < 5 or len(res[1][0]) < 5:
             return 'glints is not enough'
-        f=True
-        if len(res[0][0])==5:
+        f = True
+        if len(res[0][0]) == 5:
             for c in res[0][0]:
                 glints_l.append(c.ellipse[0])
 
-            f=False
+            f = False
             '''
             draw_img = cds.draw_ellipse(sub_img, res[0][0])
             draw_img = cds.draw_ellipse(draw_img, [res[0][1]])
             draw_img = cv2.circle(draw_img, (int(res[0][1].ellipse[0][0]), int(res[0][1].ellipse[0][1])), 3,(0, 255, 0), -1)
             '''
-        if len(res[1][0])==5:
+        if len(res[1][0]) == 5:
             for c in res[1][0]:
                 glints_r.append(c.ellipse[0])
         '''
@@ -231,23 +247,24 @@ class eye_tracker:
                 draw_img = cds.draw_ellipse(draw_img, [res[1][1]])
                 draw_img = cv2.circle(draw_img, (int(res[1][1].ellipse[0][0]), int(res[1][1].ellipse[0][1])), 3,(0, 255, 0), -1)
         cv2.imwrite(img_p,draw_img)
+        if len(res[0][0]) < 5 or len(res[1][0]) < 5:
+            return 'glints is not enough'
         '''
-
-        if len(glints_r)==0:
+        if len(glints_r) == 0:
             get_glints_sort(glints_l)
-            glints_r=glints_l.copy()
+            glints_r = glints_l.copy()
             left = [res[0][1].ellipse[0]]
-            right=left.copy()
-        elif len(glints_l)==0:
+            right = left.copy()
+        elif len(glints_l) == 0:
             get_glints_sort(glints_r)
-            glints_l=glints_r.copy()
+            glints_l = glints_r.copy()
             right = [res[1][1].ellipse[0]]
-            left=right.copy()
+            left = right.copy()
         else:
             get_glints_sort(glints_l)
             get_glints_sort(glints_r)
             left = [res[0][1].ellipse[0]]
-            right=[res[1][1].ellipse[0]]
+            right = [res[1][1].ellipse[0]]
         '''
         file_path=os.path.dirname(img_p)+'\\'+os.path.basename(img_p).split('.')[0]+'.txt'
         with open(file_path,'w') as t:
@@ -261,85 +278,85 @@ class eye_tracker:
         left.extend(glints_l)
         right.extend(glints_r)
 
-        l=self.get_estimation(left,0)
+        l = self.get_estimation(left, 0)
         self.plcr[0].refresh()
-        r=self.get_estimation(right,1)
+        r = self.get_estimation(right, 1)
         self.plcr[1].refresh()
-        g_len=(l[0]+r[0])/2
-        centers = np.array([52.78 / 2, 31.26 / 2], dtype=np.float32)
+        g_len = (l[0] + r[0]) / 2
         # print(f'glen {g_len}')
-        gaze_estimation=l*(52.78-g_len)/52.78+r*g_len/52.78
-        #vec direction->down
+        gaze_estimation = l * (1920 - g_len) / 1920 + r * g_len/1920
+        # vec direction->down
         # up down left right
-        time3=timeit.default_timer()
+        time3 = timeit.default_timer()
         if self.average_mode:
             if self.is_calibration:
                 return gaze_estimation
-            centers=np.array([self.des[0][0],self.des[0][1]],dtype=np.float32)
-            # centers = np.array([52.78 / 2, 31.26 / 2], dtype=np.float32)
-            s_para = 52.78 / 1920
-            compute_vec = np.zeros((2), dtype=np.float32)
+            centers = np.array([self.des[0][0], self.des[0][1]], dtype=np.float32)
             # y 480,960 x 660 1320
             # up
-            # vec1 = (self.vecs[0] - self.vecs[2]) / (480 * s_para)
-            vec1=(self.vecs[0]-self.vecs[2])
+            vec1 = (self.vecs[0] - self.vecs[2])
             # down
-            # vec2 = (self.vecs[5] - self.vecs[0]) / (480 * s_para)
-            vec2=(self.vecs[5] - self.vecs[0])
+            vec2 = (self.vecs[5] - self.vecs[0])
             # up
-            # vec3 = (self.vecs[4] - self.vecs[1]) / (960 * s_para)
-            # vec4 = (self.vecs[6] - self.vecs[3]) / (960 * s_para)
-            vec3=(self.vecs[4] - self.vecs[1])
+            vec3 = (self.vecs[4] - self.vecs[1])
             vec4 = (self.vecs[6] - self.vecs[3])
-            centers_ratio=norm(self.des[0]-self.des[2])/(norm(self.des[5]-self.des[0])+norm(self.des[0]-self.des[2]))
-            if centers[0]>gaze_estimation[0]:
-                left_vec=self.des[1]*(1-centers_ratio)+self.des[4]*centers_ratio
-                ratio=norm(gaze_estimation-self.des[1])/(norm(self.des[2]-gaze_estimation)+norm(gaze_estimation-self.des[1]))
-                mid1=ratio*self.des[2]+(1-ratio)*self.des[1]
-                ratio=norm(gaze_estimation-left_vec)/(norm(gaze_estimation-left_vec)+norm(gaze_estimation-centers))
-                mid2=ratio*self.des[0]+(1-ratio)*left_vec
-                ratio=norm(gaze_estimation-self.des[4])/(norm(gaze_estimation-self.des[4])+norm(gaze_estimation-self.des[5]))
-                mid3=ratio*self.des[5]+(1-ratio)*self.des[4]
-                scal_1=norm(gaze_estimation-mid1)/norm(mid3-mid1)
+            centers_ratio = norm(self.des[0] - self.des[2]) / (
+                        norm(self.des[5] - self.des[0]) + norm(self.des[0] - self.des[2]))
+            if centers[0] > gaze_estimation[0]:
+                left_vec = self.des[1] * (1 - centers_ratio) + self.des[4] * centers_ratio
+                ratio = norm(gaze_estimation - self.des[1]) / (
+                            norm(self.des[2] - gaze_estimation) + norm(gaze_estimation - self.des[1]))
+                mid1 = ratio * self.des[2] + (1 - ratio) * self.des[1]
+                ratio = norm(gaze_estimation - left_vec) / (
+                            norm(gaze_estimation - left_vec) + norm(gaze_estimation - centers))
+                mid2 = ratio * self.des[0] + (1 - ratio) * left_vec
+                ratio = norm(gaze_estimation - self.des[4]) / (
+                            norm(gaze_estimation - self.des[4]) + norm(gaze_estimation - self.des[5]))
+                mid3 = ratio * self.des[5] + (1 - ratio) * self.des[4]
+                scal_1 = norm(gaze_estimation - mid1) / norm(mid3 - mid1)
             else:
-                right_vec=self.des[3]*(1-centers_ratio) + self.des[6] * centers_ratio
-                ratio=norm(gaze_estimation - self.des[2])/(norm(self.des[2] - gaze_estimation) + norm(gaze_estimation - self.des[3]))
-                mid1 = ratio * self.des[3]+(1-ratio)*self.des[2]
-                ratio=norm(gaze_estimation - centers) /(norm(gaze_estimation - right_vec) + norm(gaze_estimation - centers))
-                mid2 = ratio*right_vec+(1-ratio)*centers
-                ratio=norm(gaze_estimation - self.des[5]) / (norm(gaze_estimation - self.des[5]) + norm(gaze_estimation - self.des[6]))
-                mid3 = ratio* self.des[6]+(1-ratio)*self.des[5]
-                scal_1=np.linalg.norm(gaze_estimation-mid1)/np.linalg.norm(mid3-mid1)
+                right_vec = self.des[3] * (1 - centers_ratio) + self.des[6] * centers_ratio
+                ratio = norm(gaze_estimation - self.des[2]) / (
+                            norm(self.des[2] - gaze_estimation) + norm(gaze_estimation - self.des[3]))
+                mid1 = ratio * self.des[3] + (1 - ratio) * self.des[2]
+                ratio = norm(gaze_estimation - centers) / (
+                            norm(gaze_estimation - right_vec) + norm(gaze_estimation - centers))
+                mid2 = ratio * right_vec + (1 - ratio) * centers
+                ratio = norm(gaze_estimation - self.des[5]) / (
+                            norm(gaze_estimation - self.des[5]) + norm(gaze_estimation - self.des[6]))
+                mid3 = ratio * self.des[6] + (1 - ratio) * self.des[5]
+                scal_1 = np.linalg.norm(gaze_estimation - mid1) / np.linalg.norm(mid3 - mid1)
             if gaze_estimation[1] < mid2[1]:
-                scal_2=np.linalg.norm(gaze_estimation-mid1)/np.linalg.norm(mid2-mid1)
-                vec5 = scal_2* vec1 + self.vecs[2]
-                vec5_des=self.des[2]+(self.des[0]-self.des[2])*scal_2
+                scal_2 = np.linalg.norm(gaze_estimation - mid1) / np.linalg.norm(mid2 - mid1)
+                vec5 = scal_2 * vec1 + self.vecs[2]
+                vec5_des = self.des[2] + (self.des[0] - self.des[2]) * scal_2
             else:
-                scal_2=np.linalg.norm(gaze_estimation-mid2)/np.linalg.norm(mid3-mid2)
-                vec5 = scal_2* vec2 + self.vecs[0]
-                vec5_des=self.des[0]+(self.des[5]-self.des[0])*scal_2
+                scal_2 = np.linalg.norm(gaze_estimation - mid2) / np.linalg.norm(mid3 - mid2)
+                vec5 = scal_2 * vec2 + self.vecs[0]
+                vec5_des = self.des[0] + (self.des[5] - self.des[0]) * scal_2
             if gaze_estimation[0] < centers[0]:
                 vec6 = vec3 * scal_1 + self.vecs[1]
-                vec6_des=(self.des[4]-self.des[1])*scal_1
+                vec6_des = (self.des[4] - self.des[1]) * scal_1
                 # compute_vec = (vec5 - vec6) / (660 * s_para) * gaze_estimation[0] + vec6
-                compute_vec = (vec5 - vec6) / np.linalg.norm(vec6_des[0]-vec5_des[0]) * gaze_estimation[0] + vec6
+                compute_vec = (vec5 - vec6) / np.linalg.norm(vec6_des[0] - vec5_des[0]) * gaze_estimation[0] + vec6
             else:
                 vec6 = vec4 * scal_1 + self.vecs[3]
-                vec6_des=(self.des[6]-self.des[3])*scal_1
+                vec6_des = (self.des[6] - self.des[3]) * scal_1
                 # compute_vec = (vec6 - vec5) / (660 * s_para) * (gaze_estimation[0] - centers[0]) + vec5
-                compute_vec = (vec6 - vec5) / np.linalg.norm(vec6_des[0]-vec5_des[0]) * (gaze_estimation[0] - centers[0]) + vec5
+                compute_vec = (vec6 - vec5) / np.linalg.norm(vec6_des[0] - vec5_des[0]) * (
+                            gaze_estimation[0] - centers[0]) + vec5
             # print(f'sca {scal_1, scal_2,mid1,mid2,mid3,gaze_estimation}')
             time3 = timeit.default_timer()
-            time_recoder[1]+=time3-time2
-            times_recorder[1]+=1.
-            return gaze_estimation-compute_vec
-        times_recorder[1]+=1
-        time_recoder[1]+=time3-time2
-        return l,r
+            time_recoder[1] += time3 - time2
+            times_recorder[1] += 1.
+            return gaze_estimation - compute_vec
+        times_recorder[1] += 1
+        time_recoder[1] += time3 - time2
+        return l, r
 
-    def calibration(self,cap,screen,points,cali_nums=20,store=False,root_path=None):
+    def calibration(self, cap, screen, points, cali_nums=20, store=False, root_path=None):
         self.calibration_mode(True)
-        points_num=1
+        points_num = 1
         vecs_left = []
         vecs_right = []
         vecs_ave = []
@@ -348,152 +365,166 @@ class eye_tracker:
         RED = (0, 0, 255)
         BLUE = (255, 0, 0)
         GREEN = (0, 255, 0)
-        r_cali_path=os.path.join(root_path,'cali')
-        r_draw_path=os.path.join(root_path,'draw')
-        points=np.array(points,dtype=np.float32)
+        r_cali_path = os.path.join(root_path, 'cali')
+        r_draw_path = os.path.join(root_path, 'draw')
+        points = np.array(points, dtype=np.float32)
         for i in range(10):
-            ref,frame=cap.read()
+            ref, frame = cap.read()
         for point in points:
-            nums=0
+            nums = 0
             ress = []
-            cali_path=os.path.join(r_cali_path,str(points_num))
-            draw_path=os.path.join(r_draw_path,str(points_num))
+            cali_path = os.path.join(r_cali_path, str(points_num))
+            draw_path = os.path.join(r_draw_path, str(points_num))
             if not os.path.exists(cali_path):
                 os.makedirs(cali_path)
             if not os.path.exists(draw_path):
                 os.makedirs(draw_path)
             if store:
-                points_path=os.path.join(root_path,str(points_num))
+                points_path = os.path.join(root_path, str(points_num))
                 if not os.path.exists(points_path):
                     os.makedirs(points_path)
-                points_num+=1
+                points_num += 1
             screen.fill(background_color)
             pygame.draw.circle(screen, RED, (point[0], point[1]), 10)
             pygame.display.update()
             time.sleep(1.0)
+            center_l=[]
+            center_t=0.
             while True:
                 pygame.draw.circle(screen, BLUE, (point[0], point[1]), 10)
                 pygame.display.update()
-                if nums>=cali_nums:
+                if nums >= cali_nums:
                     break
                 ref, frame = cap.read()
                 gray_img = du.get_gray_pic(frame)
-                d_path=os.path.join(draw_path,str(nums)+'.png')
-                sub_center=np.zeros(2,dtype=np.float32)
-                res = self.detect(gray_img,img_p=d_path,f=sub_center)
-                if isinstance(res,str):
+                d_path = os.path.join(draw_path, str(nums) + '.png')
+                sub_center = np.zeros(2, dtype=np.float32)
+                res = self.detect(gray_img, img_p=d_path, f=sub_center)
+                if isinstance(res, str):
                     continue
+                if nums==0:
+                    center_l.append(sub_center)
+                    center_t+=1.
                 if store:
                     pass
-                    pic_pa=os.path.join(points_path,str(nums)+'.png')
-                    cv2.imwrite(pic_pa,frame)
-                    file_path=os.path.join(points_path,str(nums)+'.txt')
-                    content=str(point[0])+' '+str(point[1])
-                    with open(file_path, 'w') as fd:
-                        fd.write(str(content))
-                        fd.close()
+                    # pic_pa = os.path.join(points_path, str(nums) + '.png')
+                    # cv2.imwrite(pic_pa, frame)
+                    # file_path = os.path.join(points_path, str(nums) + '.txt')
+                    # content = str(point[0]) + ' ' + str(point[1])
+                    # with open(file_path, 'w') as fd:
+                    #     fd.write(str(content))
+                    #     fd.close()
                 ress.append(res)
-                nums+=1
+                nums += 1
                 print(nums)
             pygame.draw.circle(screen, GREEN, (point[0], point[1]), 10)
             pygame.display.update()
             time.sleep(1.0)
 
-            res=[]
+            res = []
             average = np.mean(ress, axis=0)
             if len(ress) == 0:
                 continue
             for r1 in ress:
-                if not np.linalg.norm(r1 - average) > 10:
+                if not np.linalg.norm(r1 - average) > 400:
                     res.append(r1)
             if len(res) == 0:
                 continue
             res = np.mean(res, axis=0)
             g_len = np.fabs((res[0][0] + res[1][0]) / 2)
-            vecs_right.append((res[1] - point * 52.78 / 1920))
-            vecs_left.append((res[0] - point * 52.78 / 1920))
-            vecs_ave.append((res[0] * (52.78 - g_len) / 52.78) + (res[1] * (g_len) / 52.78) - point * 52.78 / 1920)
+            vecs_right.append((res[1] - point ))
+            vecs_left.append((res[0] - point ))
+            vecs_ave.append((res[0] * (1920. - g_len) / 1920.) + (res[1] * (g_len) / 1920) - point)
             des_left.append(res[0])
             des_right.append(res[1])
-            des_ave.append((res[0] * (52.78 - g_len) / 52.78) + (res[1] * (g_len) / 52.78))
+            des_ave.append((res[0] * (1920. - g_len) / 1920.) + (res[1] * (g_len)/1920))
         pygame.quit()
         return np.array(vecs_left, dtype=np.float32), \
                np.array(vecs_right, dtype=np.float32), \
                np.array(vecs_ave, dtype=np.float32), \
                np.array(des_left, dtype=np.float32), np.array(des_right, dtype=np.float32), np.array(des_ave,
                                                                                                      dtype=np.float32)
-
-
-    def tracking(self,cap,vec_left, vec_right,vec_ave,des_left, des_right,des_ave,store=False,root_path=None):
-        pyautogui.FAILSAFE=False
-
+    def tracking(self, cap, vec_left, vec_right, vec_ave, des_left, des_right, des_ave, store=False, root_path=None):
+        pyautogui.FAILSAFE = False
+        name = datetime.now().strftime('%Y-%m-%d %H-%M-%S')  # 当前的时间（当文件名）
+        screen = ImageGrab.grab()  # 获取当前屏幕
+        width, high = screen.size  # 获取当前屏幕的大小
+        fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D')  # MPEG-4编码,文件后缀可为.avi .asf .mov等
+        video = cv2.VideoWriter('%s.avi' % name, fourcc, 15, (width, high))  # （文件名，编码器，帧率，视频宽高）
+        # print('3秒后开始录制----')  # 可选
+        # time.sleep(3)
+        print('开始录制!')
+        global start_time
+        start_time = time.time()
         def run_key():
             with keyboard.Listener(on_press=on_press) as lsn:
                 lsn.join()
-        t=threading.Thread(target=run_key)
+
+        t = threading.Thread(target=run_key)
         t.start()
         if not (root_path is None):
             if os.path.exists(root_path):
                 os.makedirs(root_path)
         self.set_calibration([vec_ave], [des_ave])
         # tracker_2.set_calibration([np.array([[0.,0.] for i in range(7)])],[np.array([[0.,0.] for i in range(7)])])
-        self.calibration_mode(False)
-        start_t=timeit.default_timer()
-        point=np.zeros(2,dtype=np.float32)
-        times=0.
-        valid=0.
-        data_t=0.
-        pro_t=0.
+        start_t = timeit.default_timer()
+        point = np.zeros(2, dtype=np.float32)
+        times = 0.
+        valid = 0.
+        data_t = 0.
+        pro_t = 0.
         # thread_p=threading.Thread(target=get_pics,args=(cap,))
         # thread_p.setDaemon(True)
         # thread_p.start()
         global EXIT_FLAG
         while True:
-            if EXIT_FLAG==True:
+            if EXIT_FLAG == True:
                 break
             # print('a')
+            im=ImageGrab.grab()
             if q.empty():
-                t1=timeit.default_timer()
+                t1 = timeit.default_timer()
                 ref, frame = cap.read()
                 # print(frame.shape)
                 # frame=q.get()
                 # print(frame)
-                t2=timeit.default_timer()
-                gray_img=du.get_gray_pic(frame)
+                t2 = timeit.default_timer()
+                gray_img = du.get_gray_pic(frame)
                 res = self.detect(gray_img)
                 t3 = timeit.default_timer()
                 pro_t += t3 - t2
                 data_t += t2 - t1
-                times+=1
+                times += 1
                 if not isinstance(res, str):
-                    valid+=1
-                    u_point=res/52.78*1920
-                    if np.linalg.norm(u_point-point)>30:
-                        point=u_point
+                    valid += 1
+                    u_point = res
+                    if np.linalg.norm(u_point - point) > 15:
+                        point = u_point
                 print(res)
-            pyautogui.moveTo(point[0],point[1])
+                im = cv2.cvtColor(np.array(im), cv2.COLOR_RGB2BGR)
+                cv2.circle(im,(int(point[0]),int(point[1])),10,(0,0,255))
+                video.write(im)
+            # pyautogui.moveTo(point[0], point[1])
 
-            if valid==50:
-                end_t=timeit.default_timer()
-                total_t=end_t-start_t
+            if valid == 50:
+                end_t = timeit.default_timer()
+                total_t = end_t - start_t
                 print(total_t)
                 print(valid)
                 print(times)
-                print(pro_t,pro_t/times,pro_t/valid)
-                print(data_t,data_t/times,data_t/valid)
-                print(pro_t/total_t)
-                print(data_t/total_t)
+                print(pro_t, pro_t / times, pro_t / valid)
+                print(data_t, data_t / times, data_t / valid)
+                print(pro_t / total_t)
+                print(data_t / total_t)
                 # clear_q(thread_p)
                 # print(q.qsize())
                 # break
 
 
-
-
-
 def norm(a):
     return np.linalg.norm(a)
 
+
 def get_time():
-    a=cds.get_time()
-    return a,time_recoder,times_recorder,time_recoder/times_recorder,time_recoder/time_recoder.sum()
+    a = cds.get_time()
+    return a, time_recoder, times_recorder, time_recoder / times_recorder, time_recoder / time_recoder.sum()

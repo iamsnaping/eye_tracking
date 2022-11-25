@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
-  </component>
   <component name="ChangeListManager">
-    <list default="true" id="983f8d42-2e5e-464c-b896-1aea41736556" name="Changes" comment="">
+    <list default="true" id="1d84efa0-13a1-467f-9052-92f8d0c4f786" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/eye_tracking.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/eye_tracking.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/base_estimation/plcr/plcr.py" beforeDir="false" afterPath="$PROJECT_DIR$/base_estimation/plcr/plcr.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/eye_tracking/eye_tracking.py" beforeDir="false" afterPath="$PROJECT_DIR$/eye_tracking/eye_tracking.py" afterDir="false" />
-<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/pupil_detect/contour_detector_single.py" beforeDir="false" afterPath="$PROJECT_DIR$/pupil_detect/contour_detector_single.py" afterDir="false" />
-=======
->>>>>>> master
+      <change beforePath="$PROJECT_DIR$/pupil_detect/contour_detector_single_debug.py" beforeDir="false" afterPath="$PROJECT_DIR$/pupil_detect/contour_detector_single_debug.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/common_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_/common_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_/eye_tracking_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_/eye_tracking_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Python Unit Test" />
-        <option value="Python Script" />
-      </list>
-    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -31,13 +25,7 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
-  </component>
-  <component name="ProjectId" id="2ANPjGjGW8Zh6UDL24wtZYu0M9w" />
-  <component name="ProjectLevelVcsManager">
-    <ConfirmationsSetting value="2" id="Add" />
-  </component>
+  <component name="ProjectId" id="2HwswowaE9QAbyPmJhFG3WfOthz" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -46,24 +34,10 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/eye_tracking&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+    &quot;last_opened_file_path&quot;: &quot;D:/anaconda/envs/test&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
 }</component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\eye_tracking\image_process" />
-      <recent name="D:\eye_tracking\test_\models\openface" />
-      <recent name="D:\eye_tracking\test_\models\dlib" />
-      <recent name="D:\eye_tracking\test_" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="D:\eye_tracking\data_geter" />
-      <recent name="D:\eye_tracking\base_estimation" />
-      <recent name="D:\eye_tracking\polynomial" />
-    </key>
-  </component>
   <component name="RunManager" selected="Python.eye_tracking_test">
     <configuration name="common_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="eye_tracking" />
@@ -78,27 +52,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test_/common_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="data_geter" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="eye_tracking" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data_geter" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data_geter/data_geter.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -149,99 +102,31 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="eye_tracking" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test_" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test_/test2.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <list>
-      <item itemvalue="Python.test2" />
-      <item itemvalue="Python.common_test" />
-      <item itemvalue="Python.data_geter" />
-      <item itemvalue="Python.eye_tracking_test" />
-      <item itemvalue="Python.eye_tracking" />
-    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.eye_tracking_test" />
-        <item itemvalue="Python.eye_tracking" />
         <item itemvalue="Python.common_test" />
-        <item itemvalue="Python.data_geter" />
-        <item itemvalue="Python.test2" />
+        <item itemvalue="Python.eye_tracking" />
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
-  <component name="SvnConfiguration">
-    <configuration />
-  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="983f8d42-2e5e-464c-b896-1aea41736556" name="Changes" comment="" />
-      <created>1654847202857</created>
+      <changelist id="1d84efa0-13a1-467f-9052-92f8d0c4f786" name="Changes" comment="" />
+      <created>1669207722239</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1654847202857</updated>
-      <workItem from="1654847205919" duration="3845000" />
-      <workItem from="1654866218237" duration="844000" />
-      <workItem from="1655189869628" duration="8187000" />
-      <workItem from="1655212921766" duration="613000" />
-      <workItem from="1655391354881" duration="8844000" />
-      <workItem from="1655450130210" duration="12251000" />
-      <workItem from="1655531497908" duration="754000" />
-      <workItem from="1655965679680" duration="18077000" />
-      <workItem from="1656052778746" duration="9116000" />
-      <workItem from="1657330416417" duration="1129000" />
-      <workItem from="1657527175875" duration="1525000" />
-      <workItem from="1657716825134" duration="8923000" />
-      <workItem from="1657726320472" duration="641000" />
-      <workItem from="1657761574080" duration="3286000" />
-      <workItem from="1657872633380" duration="2360000" />
-      <workItem from="1658370878618" duration="197000" />
-      <workItem from="1663748169323" duration="372000" />
-      <workItem from="1663748567523" duration="12507000" />
-      <workItem from="1663764576528" duration="2264000" />
-      <workItem from="1666143645107" duration="17000" />
-      <workItem from="1666143688189" duration="3000" />
-      <workItem from="1666143715039" duration="110000" />
-      <workItem from="1666145257467" duration="796000" />
-      <workItem from="1666146078509" duration="82000" />
-      <workItem from="1666146185334" duration="102000" />
-      <workItem from="1666146319438" duration="421000" />
+      <updated>1669207722239</updated>
     </task>
     <servers />
-  </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="CUSTOM_BOOLEAN_PROPERTIES">
-                <map>
-                  <entry key="Show.Git.Branches" value="true" />
-                </map>
-              </option>
-            </State>
+            <State />
           </value>
         </entry>
       </map>

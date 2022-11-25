@@ -20,6 +20,7 @@ compare_vecs = np.array([[0.0, 0.28245639148673435, 0.16729039025910034, 0.22197
 
 
 def get_five_points(unchosen_points):
+    print(unchosen_points)
     def cmp(a, b):
         if np.abs(a[1] - b[1]) < 5:
             if a[0] < b[0]:
@@ -33,6 +34,7 @@ def get_five_points(unchosen_points):
     unchosen_points.sort(key=functools.cmp_to_key(cmp))
     chosen_points = []
     cross_value = 0.
+
     print(f'this is poitns len {len(unchosen_points)}')
     for points in itertools.combinations(unchosen_points, 5):
         index = -1
@@ -424,15 +426,17 @@ class PuRe(object):
             horizon = abs(ellipse[1][1] * np.cos(ellipse[2] * np.pi / 180))
             vertical = abs(ellipse[1][1] * np.sin(ellipse[2] * np.pi / 180))
             nums = np.array([x, y, y + horizon, y - horizon, x + vertical, x - vertical])
-            if nums.max() >= 140:
+            if np.max(nums) >= 140:
                 continue
-            if nums.min() < 0:
+            if np.min(nums) < 0:
                 continue
             if np.isnan(ellipse[1][0]) or np.isnan(ellipse[1][1]):
                 continue
             if img[int(x)][int(y)] < 20:
                 if ellipse[1][0] > 10:
-                    if img[int(x) + 10][int(y)] < 20:
+                    if x + 10 < 140 and img[int(x) + 10][int(y)] < 20:
+                        continue
+                    if x - 10 > 0 and img[int(x) - 10][int(y)] < 20:
                         continue
                 else:
                     continue

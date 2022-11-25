@@ -1,5 +1,5 @@
-
 import os
+import random
 import timeit
 
 import test_main as tm
@@ -12,7 +12,7 @@ from eye_utils import data_util as du
 from data_geter.data_geter import *
 import Cython
 from Cython.Build import cythonize
-
+from matplotlib import pyplot as plt
 
 
 
@@ -21,6 +21,8 @@ pic_path = os.path.join(root_path, 'drawed')
 if not os.path.exists(pic_path):
     os.makedirs(pic_path)
 bias_num = 5
+
+COLORS=['purple','green','blue','pink','brown','red','lightblue','teal','orange','lightgreen','magenta','yellow','sky blue','grey','limegreen','lightpurple','violet','darkgreen']
 
 cali_right_vec = np.array([[-1.22, -8.13], [0.81, -10.42], [6.97, -6.55], [8.41, 2.13], [-0.09, 0.52], [-1.78, 1.15]],
                           dtype=np.float32)
@@ -70,18 +72,18 @@ def main():
     global read_img, img_times,txt_times,read_txt
     time1 = timeit.default_timer()
     ttxt = []
-    vec_left, vec_right, vec_ave, des_left, des_right, des_ave = cali()
+    # vec_left, vec_right, vec_ave, des_left, des_right, des_ave = cali()
     time2 = timeit.default_timer()
     # print('it is cali')
     # print(vec_left,vec_right,vec_ave,des_left,des_right,des_ave)
     tracker_1 = et.eye_tracker()
-    # tracker_1.set_calibration([np.array([[0.,0.] for i in range(7)]),np.array([[0.,0.] for i in range(7)])],[np.array([[0.,0.] for i in range(7)]),np.array([[0.,0.] for i in range(7)])])
-    tracker_1.set_calibration([vec_left, vec_right], [des_left, des_right])
+    tracker_1.set_calibration([np.array([[0.,0.] for i in range(7)]),np.array([[0.,0.] for i in range(7)])],[np.array([[0.,0.] for i in range(7)]),np.array([[0.,0.] for i in range(7)])])
+    # tracker_1.set_calibration([vec_left, vec_right], [des_left, des_right])
     tracker_2 = et.eye_tracker()
-    tracker_2.set_calibration([vec_ave], [des_ave])
-    # tracker_2.set_calibration([np.array([[0.,0.] for i in range(7)])],[np.array([[0.,0.] for i in range(7)])])
-    tracker_1.calibration_mode(False)
-    tracker_2.calibration_mode(False)
+    # tracker_2.set_calibration([vec_ave], [des_ave])
+    tracker_2.set_calibration([np.array([[0.,0.] for i in range(7)])],[np.array([[0.,0.] for i in range(7)])])
+    tracker_1.calibration_mode(True)
+    tracker_2.calibration_mode(True)
     vec_left = np.zeros(2, dtype=np.float32)
     vec_right = np.zeros(2, dtype=np.float32)
     vec_ave = np.zeros(2, dtype=np.float32)
@@ -103,6 +105,9 @@ def main():
     era_times=np.array([0. for i in range(9)],dtype=np.float32)
     dis_left = []
     dis_right = []
+    x1,x2,x3,x4,x5=[],[],[],[],[]
+    y1,y2,y3,y4,y5=[],[],[],[],[]
+    colors=[]
     for txts, imgs, images in zip(txtss, imgss, imagess):
         ress = []
         ress2 = []
@@ -116,19 +121,30 @@ def main():
             gray_img = du.get_gray_pic(img)
             res = tracker_1.detect(gray_img, image)
             res2 = tracker_2.detect(gray_img, image)
-            if isinstance(res, str):
-                # print(f'{img_p} pass')
-                continue
-            time5 = timeit.default_timer()
             with open(txt) as t:
                 txt = t.read()
             txt = txt.split(' ')
             txt_num = np.array(txt, dtype=np.float32)
+            # print(txt, txt_num)
+            if isinstance(res, str):
+                # print(f'{img_p} pass')
+                continue
+            time5 = timeit.default_timer()
             time6 = timeit.default_timer()
             read_txt += time6 - time5
             txt_times += 1.
             ress.append(res)
             ress2.append(res2)
+        # print(txt_num)
+        x1.append(txt_num[0])
+        x2.append(txt_num[0])
+        x3.append(txt_num[0])
+        x4.append(txt_num[0])
+        y1.append(txt_num[1])
+        y2.append(txt_num[1])
+        y3.append(txt_num[1])
+        y4.append(txt_num[1])
+        colors.append(0)
         if len(ress) == 0 or len(ress2) == 0:
             # print(f'{img_p} pass')
             continue
@@ -140,9 +156,9 @@ def main():
         res = []
         res2 = []
         for r1, r2 in zip(ress, ress2):
-            if not np.linalg.norm(r1 - average) > 50:
+            if not np.linalg.norm(r1 - average) > 200:
                 res.append(r1)
-            if not np.linalg.norm(r2 - average2) > 50:
+            if not np.linalg.norm(r2 - average2) > 200:
                 res2.append(r2)
         if len(res) == 0 or len(res2) == 0:
             continue
@@ -150,35 +166,68 @@ def main():
         res2 = np.mean(res2, axis=0)
         res = np.mean(res, axis=0)
         ttxt.append(txt_num)
-        max_a = max(max_a, np.linalg.norm((res[1] + res[0]) / 2 - txt_num * 52.78 / 1920))
-        max_a2 = max(max_a2, np.linalg.norm(res2 - txt_num * 52.78 / 1920.0))
-        ave.append((res[1] + res[0]) / 2 - txt_num * 52.78 / 1920)
-        left.append(res[0] - txt_num * 52.78 / 1920.0)
-        right.append(res[1] - txt_num * 52.78 / 1920.0)
-        ave_2.append(res2 - txt_num * 52.78 / 1920.0)
-        value_np.append(np.linalg.norm(res2 - txt_num * 52.78 / 1920.0))
+        # 未融合
+        x1.append(res[0][0])
+        x2.append(res[1][0])
+        y1.append(res[0][1])
+        y2.append(res[1][1])
+        # 融合
+        x3.append(res2[0])
+        y3.append(res2[1])
+        colors.append(int((txt_num[0]-60)/120+2)*10)
+        max_a = max(max_a, np.linalg.norm((res[1] + res[0]) / 2 - txt_num))
+        max_a2 = max(max_a2, np.linalg.norm(res2 - txt_num ))
+        ave.append((res[1] + res[0]) / 2 - txt_num )
+        left.append(res[0] - txt_num )
+        right.append(res[1] - txt_num )
+        ave_2.append(res2 - txt_num )
+        value_np.append(np.linalg.norm(res2 - txt_num ))
         t=int((txt_num[0]//640)*3 + txt_num[1]//360)
-        era_value[t]+=np.linalg.norm(res2 - txt_num * 52.78 / 1920.0)
+        era_value[t]+=np.linalg.norm(res2 - txt_num )
         era_times[t]+=1.
         dis_left.append(res[0])
         dis_right.append(res[1])
         img_ps.append(img_p)
         g_len = np.fabs((res[0][0] + res[1][0]) / 2)
-        r_truth.append((res[0] * (52.78 - g_len) / 52.78) + (res[1] * g_len / 52.78) - txt_num * 52.78 / 1920.0)
+        r_truth.append((res[0] * (1920. - g_len) / 1920.) + (res[1] * g_len /1920.) - txt_num)
+        _truth=(res[0] * (1920. - g_len) / 1920.) + (res[1] * g_len /1920.)
+        x4.append(_truth[0])
+        y4.append(_truth[1])
         imgs.append(image)
-        vec_left += (res[0] - txt_num * 52.78 / 1920.0)
-        vec_right += (res[1] - txt_num * 52.78 / 1920.0)
-        vec_ave += ((res[1] + res[0]) / 2 - txt_num * 52.78 / 1920)
+        vec_left += (res[0] - txt_num )
+        vec_right += (res[1] - txt_num)
+        vec_ave += ((res[1] + res[0]) / 2 - txt_num)
         # print(res2,txt_num)
-        vec_ave_2 += (res2 - txt_num * 52.78 / 1920.0)
+        vec_ave_2 += (res2 - txt_num )
         tt += 1
-
+    x1=np.array(x1)
+    x2=np.array(x2)
+    x3=np.array(x3)
+    y1=np.array(y1)
+    y2=np.array(y2)
+    y3=np.array(y3)
+    colors=np.array(colors)
+    plt.scatter(x1,y1,c=colors,cmap='viridis')
+    plt.colorbar()
+    plt.savefig('C:\\Users\\snapping\\Desktop\\left.png')
+    # plt.show()
+    plt.cla()
+    plt.scatter(x2, y2, c=colors,cmap='viridis')
+    plt.savefig('C:\\Users\\snapping\\Desktop\\right.png')
+    # plt.show()
+    plt.cla()
+    plt.scatter(x3, y3, c=colors,cmap='viridis')
+    plt.savefig('C:\\Users\\snapping\\Desktop\\trend2.png')
+    plt.cla()
+    plt.scatter(x4,y4,c=colors,cmap='viridis')
+    plt.savefig('C:\\Users\\snapping\\Desktop\\truth.png')
+    # plt.show()
     vec_left /= tt
     vec_right /= tt
     vec_ave /= tt
     vec_ave_2 /= tt
     user32 = ctypes.windll.user32
-    '''
+    # '''
     dg = data_geter('')
     user32.SetProcessDPIAware(2)
     screen = pygame.display.set_mode((user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)))
@@ -225,8 +274,8 @@ def main():
         x = point[0] - 60
         y = point[1] - 60
         w, h = 120, 120
-        c = int(np.linalg.norm(a) * 255.0 / max_a)
-        color = (c, 0, 0)
+        # c = int(np.linalg.norm(a) * 255.0 / max_a)
+        # color = (c, 0, 0)
         rec1 = pygame.Rect(x, y, 120, 120)
         pygame.draw.rect(screen, (0, 0, 0), rec1, 1)
     for t, a, pl in zip(ttxt, ave_2, points_len):
@@ -253,7 +302,7 @@ def main():
         x = point[0] - 60
         y = point[1] - 60
         w, h = 120, 120
-        c = int(np.linalg.norm(a) * 255.0 / max_a)
+        # c = int(np.linalg.norm(a) * 255.0 / max_a)
         color = (c, 0, 0)
         rec1 = pygame.Rect(x, y, 120, 120)
         pygame.draw.rect(screen, (0, 0, 0), rec1, 1)
@@ -370,7 +419,7 @@ def main():
         screen.blit(number_img, (x + 2 + margin_x, y + 2 + margin_y))
         screen.blit(number_img2, (x, y))
     pygame.image.save(screen, os.path.join(root_path, 'dis_left.png'))
-    '''
+    # '''
     print(f'cali {time2 - time1}')
     print(f'{timeit.default_timer() - time1}')
     print(f'{read_img} {read_img / img_times}')
@@ -405,6 +454,7 @@ def cali():
     vecs_ave = []
     c_txt = []
     count_t=0
+    tracker1.calibration_mode(True)
     des_left, des_right, des_ave = [], [], []
     txtss, imgss, imagess = get_path('cali')
     for txts, imgs, images in zip(txtss, imgss, imagess):
@@ -439,7 +489,7 @@ def cali():
             continue
         res = []
         for r1 in ress:
-            if not np.linalg.norm(r1 - average) > 10:
+            if not np.linalg.norm(r1 - average) > 300:
                 res.append(r1)
         if len(res) == 0:
             continue
@@ -448,12 +498,12 @@ def cali():
         # print(f't{count_t} k{count_k}')
         c_txt.append(txt_num)
         g_len = np.fabs((res[0][0] + res[1][0]) / 2)
-        vecs_right.append((res[1] - txt_num * 52.78 / 1920))
-        vecs_left.append((res[0] - txt_num * 52.78 / 1920))
-        vecs_ave.append((res[0] * (52.78 - g_len) / 52.78) + (res[1] * (g_len) / 52.78) - txt_num * 52.78 / 1920)
+        vecs_right.append((res[1] - txt_num ))
+        vecs_left.append((res[0] - txt_num ))
+        vecs_ave.append((res[0] * (1920. - g_len) / 1920) + (res[1] * (g_len) / 1920.) - txt_num )
         des_left.append(res[0])
         des_right.append(res[1])
-        des_ave.append((res[0] * (52.78 - g_len) / 52.78) + (res[1] * (g_len) / 52.78))
+        des_ave.append((res[0] * (1920 - g_len) / 1920) + (res[1] * (g_len) / 1920))
 
     return np.array(vecs_left, dtype=np.float32), \
            np.array(vecs_right, dtype=np.float32), \
@@ -484,13 +534,26 @@ def test():
     screen = pygame.display.set_mode((1920, 1080))
     pygame.display.set_caption("data geter")
     tracker_1 = et.eye_tracker()
+    tracker_1.calibration_mode(True)
     calis=tracker_1.calibration(cap=cap, screen=screen, root_path='C:\\Users\\snapping\\Desktop\\data\\2022.11.12\\wtc',
                           cali_nums=20, store=True, points=points)
+    pygame.init()
+    screen = pygame.display.set_mode((1920, 1080))
+    pygame.display.set_caption("data geter")
+    print(calis)
+    points=dg.get_points(10)
+    screen.fill((255,255,255))
+    np.random.shuffle(points)
+    ps = points[0:20]
+    for p in ps:
+        pygame.draw.circle(screen, (255, 0, 0), (p[0], p[1]), 10)
+        pygame.display.update()
     # calis=[]
     # for i in range(7):
     #     calis.append(np.array([[0.,0.] for i in range(7)],dtype=np.float32))
     # calis=tuple(calis)
     tracker_1.tracking(cap,*calis)
+
 
 
 if __name__ == '__main__':

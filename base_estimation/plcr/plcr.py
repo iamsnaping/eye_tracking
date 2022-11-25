@@ -85,7 +85,6 @@ class plcr(base_estimation):
         self._cali_ratio_x = 0.0
         self._cali_ratio_y = 0.0
         self._cross_ratio_points = []
-        self._is_calibration=True
 
     def set_vup(self, lights):
         mid = (lights[:, 0] - lights[:, 3]) + (lights[:, 1] - lights[:, 2])
@@ -207,7 +206,6 @@ class plcr(base_estimation):
         v.append(utils.get_points_3d(g[1], g[2], g[3], g[0]))
         c = g[0] + g[1] + g[2] + g[3]
         c /= 4.0
-        # print(f'{c} v0 {v[0].T} v1{v[1].T} visual {self._visual.T}')
         if v[1][1] < g[0][1]:
             self._m_points[:, 0] = utils.get_points_3d2(g[0], g[1], c, v[1])
             self._m_points[:, 1] = utils.get_points_3d2(g[0], g[1], self._visual, v[1])
@@ -232,27 +230,22 @@ class plcr(base_estimation):
     def gaze_estimation(self):
         tu = self.cross_ratio(self._cross_ratio_points, self._m_points.T)
         c_x, c_y = tu[0], tu[1]
-        self._gaze_estimation[0] = self._w - self._w * c_x
-        self._gaze_estimation[1] = self._h * c_y
+        self._gaze_estimation[0] = 1920 - 1920 * c_x
+        self._gaze_estimation[1] = 1080 * c_y
         if self._is_calibration:
             return self._gaze_estimation
         # centers = np.array([52.78 / 2, 31.26 / 2], dtype=np.float32)
         # s_para = 52.78 / 1920
         centers = np.array([self._calibration_vec_des[0][0], self._calibration_vec_des[0][1]], dtype=np.float32)
         # centers = np.array([52.78 / 2, 31.26 / 2], dtype=np.float32)
-        s_para = 52.78 / 1920
         compute_vec = np.zeros((2), dtype=np.float32)
         # y 480,960 x 660 1320
         # up
-        # vec1 = (self.vecs[0] - self.vecs[2]) / (480 * s_para)
         vec1 = (self._calibration_vec[0] - self._calibration_vec[2])
         # down
-        # vec2 = (self.vecs[5] - self.vecs[0]) / (480 * s_para)
         vec2 = (self._calibration_vec[5] - self._calibration_vec[0])
         # up
-        # vec3 = (self.vecs[4] - self.vecs[1]) / (960 * s_para)
-        # vec4 = (self.vecs[6] - self.vecs[3]) / (960 * s_para)
-        # print(f'                  {self._calibration_vec}')
+
         vec3 = (self._calibration_vec[4] - self._calibration_vec[1])
         vec4 = (self._calibration_vec[6] - self._calibration_vec[3])
         center_ratio=norm(self._calibration_vec_des[0]-self._calibration_vec_des[2])/(norm(self._calibration_vec_des[5]-self._calibration_vec_des[0])+norm(self._calibration_vec_des[2]-self._calibration_vec_des[0]))
@@ -300,7 +293,8 @@ class plcr(base_estimation):
             compute_vec = (vec6 - vec5) / norm(vec6_des[0] - vec5_des[0]) * (
                         self._gaze_estimation[0] - centers[0]) + vec5
         # print(f'sca {scal_1, scal_2,mid1,mid2,mid3,self._gaze_estimation}')
-        return self._gaze_estimation - compute_vec
+        self._gaze_estimation-=compute_vec
+        return self._gaze_estimation
 
     def set_calibration(self, vecs, des):
         self._calibration_vec = vecs

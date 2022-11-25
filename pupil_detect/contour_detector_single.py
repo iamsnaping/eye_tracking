@@ -16,15 +16,17 @@ GaussianBlur((3,3),1)
 
 time_recorder = np.array([0. for i in range(5)])
 times_recorder = np.array([0. for i in range(5)])
-tr1=np.array([0.for i in range(18)])
-a=['tr','tsr','tr/tsr','tr/tr.sum','ct','cts','ct/cts','et','ets','et/ets','ft','fts','ft/fts','fct','fcts','fct/fcts'
-   ,'pt','pts','pt/pts','st','sts','st/sts']
+tr1 = np.array([0. for i in range(18)])
+a = ['tr', 'tsr', 'tr/tsr', 'tr/tr.sum', 'ct', 'cts', 'ct/cts', 'et', 'ets', 'et/ets', 'ft', 'fts', 'ft/fts', 'fct',
+     'fcts', 'fct/fcts'
+    , 'pt', 'pts', 'pt/pts', 'st', 'sts', 'st/sts']
 
-compare_vecs=np.array([[0.0, 0.28245639148673435, 0.16729039025910034, 0.2219733258380298, 0.32827989241613537],
-[0.2824563914867344, 0.0, 0.3282798924161354, 0.22197332583802984, 0.16729039025910036],
-[0.18197378541807696, 0.3570936418229411, 0.0, 0.15368444753933694, 0.30724812521964495],
-[0.3055320406992954, 0.3055320406992954, 0.19446795930070465, 0.0, 0.19446795930070465],
-[0.3570936418229411, 0.18197378541807696, 0.30724812521964495, 0.15368444753933694, 0.0]])
+compare_vecs = np.array([[0.0, 0.28245639148673435, 0.16729039025910034, 0.2219733258380298, 0.32827989241613537],
+                         [0.2824563914867344, 0.0, 0.3282798924161354, 0.22197332583802984, 0.16729039025910036],
+                         [0.18197378541807696, 0.3570936418229411, 0.0, 0.15368444753933694, 0.30724812521964495],
+                         [0.3055320406992954, 0.3055320406992954, 0.19446795930070465, 0.0, 0.19446795930070465],
+                         [0.3570936418229411, 0.18197378541807696, 0.30724812521964495, 0.15368444753933694, 0.0]])
+
 
 def get_five_points(unchosen_points):
     def cmp(a, b):
@@ -44,12 +46,12 @@ def get_five_points(unchosen_points):
         index = -1
         l = []
         t = 0
-        if points[0][0] <points[1][0] <points[2][0]:
+        if points[0][0] < points[1][0] < points[2][0]:
             continue
-        if not -5<(points[0][1]-points[1][1])<5:
+        if not -5 < (points[0][1] - points[1][1]) < 5:
             continue
-        values_y=np.array([points[2][1]-points[3][1],points[3][1]-points[4][1]])
-        if values_y.max()>5 or values_y.min()<-5:
+        values_y = np.array([points[2][1] - points[3][1], points[3][1] - points[4][1]])
+        if values_y.max() > 5 or values_y.min() < -5:
             continue
         for p in points:
             if p[2] == base_point[2]:
@@ -57,56 +59,17 @@ def get_five_points(unchosen_points):
             dis = np.linalg.norm(base_point[0:2] - p[0:2])
             l.append(dis)
             t += 1
-        if index==-1:
+        if index == -1:
             continue
         l = np.array(l)
         l /= l.sum()
-        if l.max()>0.4:
+        if l.max() > 0.4:
             continue
         cvs = l @ compare_vecs[index]
         if cvs > cross_value:
             cross_value = cvs
             chosen_points = points
-    if cross_value < 0.22:
-        return []
     return chosen_points
-    vectors = np.array([[0, 1], [1, 0], [0, -1], [-1, 0]])
-    u_len = len(unchosen_points)
-    flags = [False for i in range(u_len)]
-    flags[0] = True
-    threshold1 = np.cos(np.pi / 8)
-    for p in chosen_points:
-        for i in range(u_len):
-            if flags[i]:
-                continue
-            vec = unchosen_points[i] - p
-            flag = False
-            for vector in vectors:
-                angle = (vec @ vector) / np.linalg.norm(vec)
-                if angle > threshold1:
-                    flag = True
-                    break
-            if not flag:
-                continue
-            flags[i] = True
-            flag = 0
-            dirs = [False, False, False, False]
-            for j in range(u_len):
-                vec = unchosen_points[i] - unchosen_points[j]
-                if np.linalg.norm(vec) == 0:
-                    continue
-                for k in range(4):
-                    if dirs[k]:
-                        continue
-                    angle = (vec @ vectors[k]) / np.linalg.norm(vec)
-                    if angle > threshold1:
-                        flag += 1
-                        dirs[k] = True
-            if flag >= 2:
-                chosen_points.append(unchosen_points[i])
-            else:
-                flags[i] = False
-    return flags
 
 
 class contour_with_ellipse(object):
@@ -125,18 +88,17 @@ class contour_with_ellipse(object):
     # for puipil
     def get_scores(self, img):
         global tr1
-        time1=timeit.default_timer()
+        time1 = timeit.default_timer()
         self.rou = self.ellipse[1][0] / self.ellipse[1][1]
         x, y = self.ellipse[0][0], self.ellipse[0][1]
         quadrant = np.array([0.0, 0.0, 0.0, 0.0])
         c_len = len(self.contour)
         points_inline = 0.0
         points_outline = 0.0
-        points=[i for i in range(c_len)]
-        if c_len>15:
-            points=[i for i in range(0,c_len,c_len//15)]
-        c_len=len(points)
-        # print(f'{points}')
+        points = [i for i in range(c_len)]
+        if c_len > 15:
+            points = [i for i in range(0, c_len, c_len // 15)]
+        c_len = len(points)
         for p in points:
             vec_x = self.contour[p][0][0] - x
             vec_y = self.contour[p][0][1] - y
@@ -162,12 +124,10 @@ class contour_with_ellipse(object):
             self.gamma = 0
         else:
             self.gamma = np.fabs(res) / 255
-        # print(res)
         self.psi = (self.rou + self.theta + self.gamma) / 3
-        t2=timeit.default_timer()
-        tr1[15]+=t2-time1
-        tr1[16]+=1.
-
+        t2 = timeit.default_timer()
+        tr1[15] += t2 - time1
+        tr1[16] += 1.
 
     def get_rectangle(self):
         x, y = self.ellipse[0][0], self.ellipse[0][1]
@@ -349,9 +309,9 @@ class PuRe(object):
             self.kernel = np.zeros((11, 11), dtype=np.float32)
             self.p_binary_threshold = 35
             self.g_binary_threshold = 135
-            self.pupil_center=np.zeros(2,dtype=np.float32)
-            self.pupil_d_l=0.
-            self.pupil_d_r=0.
+            self.pupil_center = np.zeros(2, dtype=np.float32)
+            self.pupil_d_l = 0.
+            self.pupil_d_r = 0.
             for i in range(11):
                 for j in range(11):
                     if (np.abs(i - 5) ** 2) + (np.abs(j - 5) ** 2) <= 16:
@@ -406,6 +366,7 @@ class PuRe(object):
         self.g_threshold = params.g_threshold
         self.p_binary_threshold = params.p_binary_threshold
         self.g_binary_threshold = params.g_binary_threshold
+        self.pupil_center=np.zeros(2,dtype=np.float32)
 
     def filter_thin(self, img):
         filter_img = img_filter(img, self.filter_1, 255 * 3, degrade=1)
@@ -424,24 +385,24 @@ class PuRe(object):
     def find_contours(self, img, d_min, d_max, rec_filter=False):
         g_contours = []
         global tr1
-        time1=timeit.default_timer()
+        time1 = timeit.default_timer()
         canny_img = cv2.Canny(img, self.threshold1, self.threshold2)
-        time2=timeit.default_timer()
-        tr1[0]+=time2-time1
-        tr1[1]+=1.0
+        time2 = timeit.default_timer()
+        tr1[0] += time2 - time1
+        tr1[1] += 1.0
         contours, hierarchy = cv2.findContours(canny_img, cv2.RETR_LIST, self.find_contour_param)
-        time3=timeit.default_timer()
-        tr1[3]+=time3-time2
-        tr1[4]+=1.
+        time3 = timeit.default_timer()
+        tr1[3] += time3 - time2
+        tr1[4] += 1.
         c_len = len(contours)
         for i in range(c_len):
             if len(contours[i]) < 5:
                 continue
-            time4=timeit.default_timer()
+            time4 = timeit.default_timer()
             ellipse = cv2.fitEllipseAMS(contours[i])
-            time5=timeit.default_timer()
-            tr1[6]+=time5-time4
-            tr1[7]+=1.
+            time5 = timeit.default_timer()
+            tr1[6] += time5 - time4
+            tr1[7] += 1.
             x = ellipse[0][1]
             y = ellipse[0][0]
             horizon = np.fabs(ellipse[1][1] * np.cos(ellipse[2] * np.pi / 180))
@@ -449,13 +410,15 @@ class PuRe(object):
             nums = np.array([x, y, y + horizon, y - horizon, x + vertical, x - vertical])
             if np.max(nums) >= 140:
                 continue
-            if np.min(nums)< 0:
+            if np.min(nums) < 0:
                 continue
             if np.isnan(ellipse[1][0]) or np.isnan(ellipse[1][1]):
                 continue
             if img[int(x)][int(y)] < 20:
                 if ellipse[1][0] > 10:
-                    if img[int(x)][int(y)] < 20:
+                    if x+10<140 and img[int(x)+10][int(y)] < 20:
+                        continue
+                    if x-10>0 and img[int(x)-10][int(y)] < 20:
                         continue
                 else:
                     continue
@@ -479,7 +442,7 @@ class PuRe(object):
 
     def fusion_contours(self, contours):
         global tr1
-        time1=timeit.default_timer()
+        time1 = timeit.default_timer()
         c_len = len(contours)
         flags = [True for i in range(c_len)]
         g_contours = []
@@ -491,9 +454,9 @@ class PuRe(object):
                 if res == True:
                     flags[j] = False
             g_contours.append(contours[i])
-        time2=timeit.default_timer()
-        tr1[6]+=time2-time1
-        tr1[7]+=1.
+        time2 = timeit.default_timer()
+        tr1[6] += time2 - time1
+        tr1[7] += 1.
         return g_contours
 
     def get_glints(self, img, contours, pupil):
@@ -503,22 +466,18 @@ class PuRe(object):
             dis = ((pupil[0] - contour.ellipse[0][0]) ** 2) + ((pupil[1] - contour.ellipse[0][1]) ** 2)
             if dis > pupil[2]:
                 continue
-            # contour.get_scores(img)
-            # if contour.gamma == 0:
-            #     continue
             flags.append([contour, dis])
         flags.sort(key=lambda x: x[1])
         points = []
-        if len(flags)<5:
+        if len(flags) < 5:
             return flags
-        t=0
+        t = 0
         for flag in flags:
-            points.append(np.array([flag[0].ellipse[0][0], flag[0].ellipse[0][1],t], dtype=np.float32))
-            t+=1
+            points.append(np.array([flag[0].ellipse[0][0], flag[0].ellipse[0][1], t], dtype=np.float32))
+            t += 1
         contour_flags = get_five_points(points)
         for cf in contour_flags:
             glint_contours.append(flags[int(cf[2])][0])
-        # print(glint_contours)
         return glint_contours[0:self.glints_num]
 
     # origin img
@@ -543,7 +502,7 @@ class PuRe(object):
         res1 = cv2.connectedComponentsWithStats(pupil_img, connectivity=8)
         time2 = timeit.default_timer()
         times_recorder[0] += 1.0
-        time_recorder[0]+=time2-time1
+        time_recorder[0] += time2 - time1
         pupils = []
         for contours, centroid in zip(res1[2], res1[3]):
             if not self.pd_min < contours[2] < self.pd_max:
@@ -567,10 +526,10 @@ class PuRe(object):
             return False
         time3 = timeit.default_timer()
         times_recorder[1] += 1.0
-        time_recorder[1]+=time3-time2
+        time_recorder[1] += time3 - time2
         # cv2.setNumThreads(2)
-        self.pupil_center=np.array([pupils[0][0]+pupils[1][0],pupils[0][1]+pupils[1][1]],dtype=np.float32)
-        self.pupil_center/=2.
+        self.pupil_center = np.array([pupils[0][0] + pupils[1][0], pupils[0][1] + pupils[1][1]], dtype=np.float32)
+        self.pupil_center /= 2.
         img_1 = img[int(pupils[0][1]) - 70:int(pupils[0][1]) + 70, int(pupils[0][0]) - 70:int(pupils[0][0]) + 70]
         img_2 = img[int(pupils[1][1]) - 70:int(pupils[1][1]) + 70, int(pupils[1][0]) - 70:int(pupils[1][0]) + 70]
         img_1_origin = (int(pupils[0][0]) - 70, int(pupils[0][1]) - 70)
@@ -584,23 +543,23 @@ class PuRe(object):
         benchmark_1 = 0
         benchmark_2 = 0
         time4 = timeit.default_timer()
-        time_recorder[2]+=time4-time3
+        time_recorder[2] += time4 - time3
         times_recorder[2] += 1.0
         # cv2.setNumThreads(2)
-        for i in range(40,56,5):
+        for i in range(40, 56, 5):
             pupil_img_1 = cv2.threshold(img_1, i, 255, cv2.THRESH_BINARY_INV)[1]
             pupil_img_2 = cv2.threshold(img_2, i, 255, cv2.THRESH_BINARY_INV)[1]
-            tf1=timeit.default_timer()
+            tf1 = timeit.default_timer()
             pupil_contours_1 = self.find_contours(pupil_img_1, self.pd_min, self.pd_max)
             pupil_contours_2 = self.find_contours(pupil_img_2, self.pd_min, self.pd_max)
-            tf2=timeit.default_timer()
-            tr1[9]+=tf2-tf1
-            tr1[10]+=1.
+            tf2 = timeit.default_timer()
+            tr1[9] += tf2 - tf1
+            tr1[10] += 1.
             p_contours_1 = self.get_pupils(pupil_contours_1, img_1)
             p_contours_2 = self.get_pupils(pupil_contours_2, img_2)
-            tr3=timeit.default_timer()
-            tr1[12]+=tr3-tf2
-            tr1[13]+=1.
+            tr3 = timeit.default_timer()
+            tr1[12] += tr3 - tf2
+            tr1[13] += 1.
             if not isinstance(p_contours_1, bool):
                 b1 = p_contours_1.ellipse[1][0] / p_contours_1.ellipse[1][1]
                 if b1 > benchmark_1:
@@ -616,14 +575,13 @@ class PuRe(object):
         # cv2.parallel.setParallelForBackend()
         p_contours_1 = best_contours1
         p_contours_2 = best_contours2
-        self.pupil_d_l = (p_contours_1[1][0]+p_contours_1[1][1])/2.
-        self.pupil_d_r = (p_contours_2[1][0]+p_contours_2[1][1])/2.
-        # print(pupils,p_contours_1.ellipse[0],p_contours_2.ellipse[0])
         time5 = timeit.default_timer()
         times_recorder[3] += 1.0
-        time_recorder[3]+=time5-time4
+        time_recorder[3] += time5 - time4
         if isinstance(p_contours_1, list) or isinstance(p_contours_2, list):
             return False
+        self.pupil_d_l = (p_contours_1.ellipse[1][0] + p_contours_1.ellipse[1][1]) / 2.
+        self.pupil_d_r = (p_contours_2.ellipse[1][0] + p_contours_2.ellipse[1][1]) / 2.
         glint_contours_1 = self.find_contours(glint_img_1, self.gd_min, self.gd_max)
         glint_contours_2 = self.find_contours(glint_img_2, self.gd_min, self.gd_max)
         if isinstance(p_contours_2, bool) or isinstance(p_contours_1, bool):
@@ -661,11 +619,12 @@ def draw_ellipse(drawed_img, c):
 
 
 def get_time():
-    res1=[time_recorder.tolist(),times_recorder.tolist(),(time_recorder/times_recorder).tolist(),(time_recorder/time_recorder.sum()).tolist()]
-    for i in range(0,16,3):
-        tr1[i+2]=tr1[i]/tr1[i+1]
+    res1 = [time_recorder.tolist(), times_recorder.tolist(), (time_recorder / times_recorder).tolist(),
+            (time_recorder / time_recorder.sum()).tolist()]
+    for i in range(0, 16, 3):
+        tr1[i + 2] = tr1[i] / tr1[i + 1]
     res1.extend(tr1.tolist())
-    res=[]
-    for i,j in zip(a,res1):
-        res.append((i,j))
+    res = []
+    for i, j in zip(a, res1):
+        res.append((i, j))
     return res

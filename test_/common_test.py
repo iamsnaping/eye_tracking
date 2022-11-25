@@ -1,67 +1,60 @@
-#!/usr/bin/env python
-import functools
-import itertools
-import math
-import os
-import time
-import cv2, queue, threading, time
-from collections import deque
+import time,threading
+from datetime import datetime
 
-import numpy as np
 import pynput.keyboard
-
-from base_estimation.plcr import plcr
+from PIL import ImageGrab
+#from cv2 import *
 import cv2
-import pygame
-# es_module=plcr.plcr()
-import time,timeit
-
-import pyautogui
+import numpy as np
 from pynput import keyboard
+def video_record():   # 录入视频
+  global name
+  fps=15
+  name = datetime.now().strftime('%Y-%m-%d %H-%M-%S') # 当前的时间（当文件名）
+  screen = ImageGrab.grab() # 获取当前屏幕
+  width, high = screen.size # 获取当前屏幕的大小
+  fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D') # MPEG-4编码,文件后缀可为.avi .asf .mov等
+  video = cv2.VideoWriter('%s.avi' % name, fourcc, fps, (width, high)) # （文件名，编码器，帧率，视频宽高）
+  #print('3秒后开始录制----')  # 可选
+  #time.sleep(3)
+  print('开始录制!')
+  global start_time
+  start_time = time.time()
+  while True:
+    if flag:
+      print("录制结束！")
+      global final_time
+      final_time = time.time()
+      video.release() #释放
+      break
+    im = ImageGrab.grab()  # 屏幕抓图，图片为RGB模式
+    frame = cv2.cvtColor(np.array(im), cv2.COLOR_RGB2BGR) # 转为opencv的BGR模式
+    video.write(frame)  #写入vedio定义的文件
+    # time.sleep(5) # 等待5秒再次循环,控制帧数
+    #等0.1毫秒---十分之一秒--10帧/秒
+def on_press(key):   # 监听按键-home
+  global flag
+  if isinstance(key,pynput.keyboard.KeyCode):
+    if key.char=='q':
+      flag = True # 改变
+      return False # 返回False，键盘监听结束！
+def video_info():   # 视频信息
+  video = cv2.VideoCapture('%s.avi' % name)  # 记得文件名加格式不要错！
+  fps = video.get(cv2.CAP_PROP_FPS)
+  Count = video.get(cv2.CAP_PROP_FRAME_COUNT)
+  size = (int(video.get(cv2.CAP_PROP_FRAME_WIDTH)), int(video.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+  print('帧率=%.1f'%fps)
+  print('帧数=%.1f'%Count)
+  print('分辨率',size)
+  print('视频时间=%.3f秒'%(int(Count)/fps))
+  print('录制时间=%.3f秒'%(final_time-start_time))
+  print('推荐帧率=%.2f'%(fps*((int(Count)/fps)/(final_time-start_time))))
+if __name__ == '__main__':
+  flag = False
+  th = threading.Thread(target=video_record)
+  th.start()
+  with keyboard.Listener(on_press=on_press) as listener:
+    listener.join()
+  time.sleep(1)  # 等待视频释放过后
+  video_info()
 
-# def cmp(a,b):
-#     if np.abs(a[1]-b[1])<2:
-#         if a[0]<b[0]:
-#             return -1
-#         return 1
-#     if a[1]<b[1]:
-#         return -1
-#     return 1
-#
-# a=[np.array([52.78,31.26]),np.array([52.78,0.]),np.array([52.78/2,32.]),np.array([0,31.26]),np.array([0,0])]
-# a.sort(key=functools.cmp_to_key((cmp)))
-# b=a
-# matrix=[]
-# print(a)
-# for i in itertools.combinations(a,3):
-#     print(i)
-#
-# for point in b:
-#     l=[]
-#     for p in b:
-#        l.append(np.linalg.norm(point-p))
-#     l=np.array(l)
-#     l/=l.sum()
-#     matrix.append(l)
-# for m in matrix:
-#     print(m.tolist(),m@m)
-#
-# print(matrix[0]@matrix[1])
-
-
-def on_press(key):
-    if isinstance(key,pynput.keyboard.KeyCode):
-        print(type(key.char))
-        if key.char =='a':
-            print('123123123')
-            return False
-    print(key)
-
-def run_key():
-    with keyboard.Listener(on_press=on_press) as lsn:
-        lsn.join()
-
-
-t=threading.Thread(target=run_key)
-t.start()
-print('123')
