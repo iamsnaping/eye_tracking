@@ -134,7 +134,6 @@ class contour_with_ellipse(object):
         if c_len > 15:
             points = [i for i in range(0, c_len, c_len // 15)]
         c_len = len(points)
-        # print(f'{points}')
         for p in points:
             vec_x = self.contour[p][0][0] - x
             vec_y = self.contour[p][0][1] - y
@@ -156,11 +155,11 @@ class contour_with_ellipse(object):
         quadrant -= 0.25
         self.theta = (1.5 - np.abs(quadrant).sum()) / 1.5
         res = (points_outline - points_inline) / c_len
+        print(res)
         if -70 < res <= 30:
             self.gamma = 0
         else:
             self.gamma = np.fabs(res) / 255
-        # print(res)
         self.psi = (self.rou + self.theta + self.gamma) / 3
 
     def get_rectangle(self):
@@ -440,6 +439,7 @@ class PuRe(object):
                         continue
                 else:
                     continue
+            print(f'this is pupils {ellipse}')
             rth = ellipse[1][0] / ellipse[1][1]
             if rth < self.r_th:
                 continue
@@ -450,7 +450,6 @@ class PuRe(object):
             if rec_filter:
                 rec = cv2.minAreaRect(contours[i])
                 r_f = rec[1][0] / rec[1][1]
-                print(rec[1])
                 if r_f > 1:
                     r_f = 1 / r_f
                 if r_f < 0.5:
@@ -537,7 +536,6 @@ class PuRe(object):
             if dis > 20:
                 continue
             pupils.append(centroid)
-            print(dis)
         if len(pupils) <= 1:
             return False
         color_i = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
@@ -558,13 +556,15 @@ class PuRe(object):
         best_contours2 = []
         benchmark_1 = 0
         benchmark_2 = 0
-        for i in range(40, 56, 5):
+        for i in range(60, 91, 10):
             pupil_img_1 = cv2.threshold(img_1, i, 255, cv2.THRESH_BINARY_INV)[1]
             pupil_img_2 = cv2.threshold(img_2, i, 255, cv2.THRESH_BINARY_INV)[1]
-            # du.show_ph(pupil_img_1)
-            # du.show_ph(pupil_img_2)
+            du.show_ph(pupil_img_1)
+            du.show_ph(pupil_img_2)
             pupil_contours_1 = self.find_contours(pupil_img_1, self.pd_min, self.pd_max, True)
             pupil_contours_2 = self.find_contours(pupil_img_2, self.pd_min, self.pd_max, True)
+            if len(pupil_contours_1)==0 or len(pupil_contours_2)==0:
+                continue
             p_contours_1 = self.get_pupils(pupil_contours_1, img_1)
             p_contours_2 = self.get_pupils(pupil_contours_2, img_2)
             i1 = img_1.copy()
@@ -604,8 +604,6 @@ class PuRe(object):
         du.show_ph(glint_img_2,name='right')
         print(p_contours_1)
         print(p_contours_2)
-        print(p_contours_1.ellipse)
-        print(p_contours_2.ellipse)
         if isinstance(p_contours_2, bool) or isinstance(p_contours_1, bool):
             return False
         g_contours_1 = []

@@ -2,11 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1d84efa0-13a1-467f-9052-92f8d0c4f786" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/eye_tracking.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/eye_tracking.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/base_estimation/homography_nomalization/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/base_estimation/homography_nomalization/homography_nomalization.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/base_estimation/base_estimation.py" beforeDir="false" afterPath="$PROJECT_DIR$/base_estimation/base_estimation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/base_estimation/plcr/plcr.py" beforeDir="false" afterPath="$PROJECT_DIR$/base_estimation/plcr/plcr.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/eye_tracking/eye_tracking.py" beforeDir="false" afterPath="$PROJECT_DIR$/eye_tracking/eye_tracking.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pupil_detect/contour_detector_single.py" beforeDir="false" afterPath="$PROJECT_DIR$/pupil_detect/contour_detector_single.py" afterDir="false" />
@@ -18,6 +17,13 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />

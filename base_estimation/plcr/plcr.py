@@ -1,10 +1,17 @@
+import cv2
+
 from base_estimation.base_estimation import base_estimation
 from eye_utils import utils as utils
 from scipy.optimize import fsolve, root
 import numpy as np
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import DotProduct, WhiteKernel,RBF,Matern,PairwiseKernel,ConstantKernel
 
 time_recorder=np.array([0.,0.,0.,0.])
 times_recorder=np.array([0.,0.,0.,0.])
+
+def sort_glints(a,b):
+    pass
 
 
 class plcr(base_estimation):
@@ -51,6 +58,7 @@ class plcr(base_estimation):
         self._calibration_vec_des = []
         self._is_calibration = True
         self._cross_ratio_points = []
+        self.gpr=0.
 
     def refresh(self):
         self._up = np.zeros((3, 1), np.float32)
@@ -106,6 +114,7 @@ class plcr(base_estimation):
         mid = self._p - self._g0
         self._n[0][0], self._n[1][0] = mid[0][0], mid[1][0]
         self._n[2][0] = np.sqrt((self._s ** 2) * (self._param[2][0] ** 2) - (np.linalg.norm(mid) ** 2))
+        self._n[2][0] = np.sqrt((self._s ** 2) * (self._param[2][0] ** 2) - (np.linalg.norm(mid) ** 2))
         self._ez = self._n / np.linalg.norm(self._n)
         mid = np.cross(self._up.reshape((3)), self._ez.reshape((3)))
         self._ex = mid / np.linalg.norm(mid)
@@ -128,7 +137,7 @@ class plcr(base_estimation):
 
     def get_plane(self):
         I = []
-        mid = np.array([0, 0, -1], dtype=np.float32)
+        mid = np.array([0, 0, 1], dtype=np.float32)
         # r 法向量
         dci = self._ci.reshape(3)
         for ii in range(4):
@@ -154,7 +163,7 @@ class plcr(base_estimation):
 
         param = self._s * np.sqrt(60.0 ** 2 + 27.0 ** 2 + 17.0 ** 2) / self._radius
         # param=np.sqrt()
-        param *= 1.5
+        param *= 2
         result = fsolve(get_func, [param, param, param, param])
         mid = np.array([0, 0, 1], np.float32).reshape((3, 1))
         points = []
@@ -193,14 +202,14 @@ class plcr(base_estimation):
         p_v = point - self._vi.reshape(3)
         p_v /= np.linalg.norm(p_v)
         I_cv /= np.linalg.norm(I_cv)
-        d = np.linalg.norm(np.cross(p_v, I)) / np.linalg.norm(np.cross(I_cv, I))
+        d = np.vdot(p_v, I) / np.vdot(I_cv, I)
         self._visual = self._vi + d * I_cv.reshape((3, 1))
         self._visual[2][0] = 0
 
     def get_m_points(self):
         self._glints = self._pupil_center - self._glints
         self._visual = self._pupil_center - self._visual
-        g = self._glints.T
+        g=self._glints.T
         v = []
         v.append(utils.get_points_3d(g[0], g[1], g[2], g[3]))
         v.append(utils.get_points_3d(g[1], g[2], g[3], g[0]))
@@ -227,15 +236,45 @@ class plcr(base_estimation):
             self._cross_ratio_points.append(g[0].reshape(3))
             self._cross_ratio_points.append(g[3].reshape(3))
 
+    def homograpy(self):
+        glints=[[1920,0,1],[0,0,1],[0,1080,1],[1920,1080,1]]
+        glints=np.array(glints,dtype=np.float32)
+        g=self._glints.T
+        og=[]
+        for i in g:
+            og.append([i[0],i[1],1])
+            # og1.append([i[0],i[1],1])
+        og=np.array(og,dtype=np.float32)
+        # og1=np.array(og1,dtype=np.float32)
+        # print(og)
+        # print(glints)
+        # print('end')
+        h_metric=cv2.findHomography(og,glints)[0]
+        h_metric=np.array(h_metric,dtype=np.float32)
+        v=self._visual
+        v[2]=1
+        des=h_metric@v
+        des=des/des[2,:]
+        self._gaze_estimation[0]=1920-des[0]
+        self._gaze_estimation[1]=des[1]
+
+
+
     def gaze_estimation(self):
+        # self.homograpy()
         tu = self.cross_ratio(self._cross_ratio_points, self._m_points.T)
         c_x, c_y = tu[0], tu[1]
         self._gaze_estimation[0] = 1920 - 1920 * c_x
         self._gaze_estimation[1] = 1080 * c_y
         if self._is_calibration:
             return self._gaze_estimation
-        # centers = np.array([52.78 / 2, 31.26 / 2], dtype=np.float32)
-        # s_para = 52.78 / 1920
+        else:
+            # print('1')
+            print(self.gpr.predict([self._gaze_estimation],return_std=True)[0][0],self._gaze_estimation)
+            self._gaze_estimation = -self.gpr.predict([self._gaze_estimation],return_std=True)[0][0]+self._gaze_estimation
+            return self._gaze_estimation
+        centers = np.array([52.78 / 2, 31.26 / 2], dtype=np.float32)
+        s_para = 52.78 / 1920
         centers = np.array([self._calibration_vec_des[0][0], self._calibration_vec_des[0][1]], dtype=np.float32)
         # centers = np.array([52.78 / 2, 31.26 / 2], dtype=np.float32)
         compute_vec = np.zeros((2), dtype=np.float32)
@@ -284,15 +323,12 @@ class plcr(base_estimation):
         if self._gaze_estimation[0] < centers[0]:
             vec6 = vec3 * scal_1 + self._calibration_vec[1]
             vec6_des = (self._calibration_vec_des[4] - self._calibration_vec_des[1]) * scal_1
-            # compute_vec = (vec5 - vec6) / (660 * s_para) * gaze_estimation[0] + vec6
             compute_vec = (vec5 - vec6) / norm(vec6_des[0] - vec5_des[0]) * self._gaze_estimation[0] + vec6
         else:
             vec6 = vec4 * scal_1 + self._calibration_vec[3]
             vec6_des = (self._calibration_vec_des[6] - self._calibration_vec_des[3]) * scal_1
-            # compute_vec = (vec6 - vec5) / (660 * s_para) * (gaze_estimation[0] - centers[0]) + vec5
             compute_vec = (vec6 - vec5) / norm(vec6_des[0] - vec5_des[0]) * (
                         self._gaze_estimation[0] - centers[0]) + vec5
-        # print(f'sca {scal_1, scal_2,mid1,mid2,mid3,self._gaze_estimation}')
         self._gaze_estimation-=compute_vec
         return self._gaze_estimation
 

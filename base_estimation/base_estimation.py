@@ -53,8 +53,7 @@ class base_estimation(object):
     #g0-m0 * m1-g1 /g0-m1 * m0-g1
     #g3-m3*m2-g2/g3-m2*m3-g2
     def cross_ratio(self,g,m):
-        # print(g)
-        # print(m)
+
         x_1=g[0]-m[0]
         x_2=m[1]-g[1]
         x_3=g[0]-m[1]
@@ -77,11 +76,6 @@ class base_estimation(object):
         cosd = (x3 @ x4) / ((np.linalg.norm(x3) * np.linalg.norm(x4)))
         cross_ratio_x = np.linalg.norm(x_1)*np.linalg.norm(x_2) / (np.linalg.norm(x_3)*np.linalg.norm(x_4))
         cross_ratio_y = np.linalg.norm(y_1)*np.linalg.norm(y_2) / (np.linalg.norm(y_3)*np.linalg.norm(y_4))
-        # for _ in g:
-        #     print(_)
-        # print(m)
-        # print(x2,x1,cosc,cosa,cosd,cosb)
-        # print(cross_ratio_x,cross_ratio_y,end=' ')
         if cosc<0:
             cross_ratio_x=-(cross_ratio_x)/(1-cross_ratio_x)
         elif cosa<0:
@@ -96,7 +90,6 @@ class base_estimation(object):
         else:
             cross_ratio_y = cross_ratio_y / (1 + cross_ratio_y)
 
-        # print(cross_ratio_x,cross_ratio_y)
         return cross_ratio_x,cross_ratio_y
 
 

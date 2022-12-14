@@ -13,7 +13,7 @@ from data_geter.data_geter import *
 import Cython
 from Cython.Build import cythonize
 from matplotlib import pyplot as plt
-
+from goto import with_goto
 
 
 root_path = 'C:\\Users\\snapping\\Desktop\\data\\2022.11.8\\wtc'
@@ -67,23 +67,27 @@ def get_path(dir):
         images_files.append(images)
     return t_files, i_files, images_files
 
-
+@with_goto
 def main():
     global read_img, img_times,txt_times,read_txt
     time1 = timeit.default_timer()
     ttxt = []
-    # vec_left, vec_right, vec_ave, des_left, des_right, des_ave = cali()
+    vec_left, vec_right, vec_ave, des_left, des_right, des_ave,oleft,oright,oposition = cali()
     time2 = timeit.default_timer()
     # print('it is cali')
-    # print(vec_left,vec_right,vec_ave,des_left,des_right,des_ave)
+    print(vec_left,vec_right,vec_ave,des_left,des_right,des_ave)
     tracker_1 = et.eye_tracker()
-    tracker_1.set_calibration([np.array([[0.,0.] for i in range(7)]),np.array([[0.,0.] for i in range(7)])],[np.array([[0.,0.] for i in range(7)]),np.array([[0.,0.] for i in range(7)])])
-    # tracker_1.set_calibration([vec_left, vec_right], [des_left, des_right])
+    # tracker_1.set_calibration([np.array([[0.,0.] for i in range(7)]),np.array([[0.,0.] for i in range(7)])],[np.array([[0.,0.] for i in range(7)]),np.array([[0.,0.] for i in range(7)])])
+    tracker_1.set_calibration([vec_left, vec_right], [des_left, des_right])
     tracker_2 = et.eye_tracker()
-    # tracker_2.set_calibration([vec_ave], [des_ave])
-    tracker_2.set_calibration([np.array([[0.,0.] for i in range(7)])],[np.array([[0.,0.] for i in range(7)])])
-    tracker_1.calibration_mode(True)
-    tracker_2.calibration_mode(True)
+    tracker_2.set_calibration([vec_ave], [des_ave])
+    # tracker_2.set_calibration([np.array([[0.,0.] for i in range(7)])],[np.array([[0.,0.] for i in range(7)])])
+    tracker_1.calibration_mode(False)
+    # tracker_1.calibration_mode(True)
+    # tracker_2.calibration_mode(True)
+    tracker_1.origin_position=oposition
+    tracker_2.origin_position=oposition
+    tracker_1.oleft_eye,tracker_1.oright_eye,tracker_2.oleft_eye,tracker_2.oright_eye=oleft,oright,oleft,oright
     vec_left = np.zeros(2, dtype=np.float32)
     vec_right = np.zeros(2, dtype=np.float32)
     vec_ave = np.zeros(2, dtype=np.float32)
@@ -133,8 +137,8 @@ def main():
             time6 = timeit.default_timer()
             read_txt += time6 - time5
             txt_times += 1.
-            ress.append(res)
-            ress2.append(res2)
+            ress.append(np.array(res,dtype=np.float32))
+            ress2.append(np.array(res2,dtype=np.float32))
         # print(txt_num)
         x1.append(txt_num[0])
         x2.append(txt_num[0])
@@ -151,16 +155,47 @@ def main():
         if isinstance(txt, str):
             # print(f'{img_p} pass')
             continue
-        average = np.mean(ress, axis=0)
-        average2 = np.mean(ress2, axis=0)
+        # average = np.mean(ress, axis=0)
+        # average2 = np.mean(ress2, axis=0)
         res = []
         res2 = []
-        for r1, r2 in zip(ress, ress2):
-            if not np.linalg.norm(r1 - average) > 200:
-                res.append(r1)
-            if not np.linalg.norm(r2 - average2) > 200:
-                res2.append(r2)
-        if len(res) == 0 or len(res2) == 0:
+        if len(ress)==1:
+            res.append(ress[0])
+        if len(ress2)==1:
+            res2.append(ress2[0])
+        _ = len(ress)
+        if _==1:
+            goto .a
+        for i in range(_):
+            if i == 0:
+                left2 = np.linalg.norm(ress[0] - ress[_ - 1])
+                right2 = np.linalg.norm(ress[0] - ress[1])
+            elif i == _ - 1:
+                left2 = np.linalg.norm(ress[i] - ress[i - 1])
+                right2 = np.linalg.norm(ress[i] - ress[0])
+            else:
+                left2 = np.linalg.norm(ress[i] - ress[i - 1])
+                right2 = np.linalg.norm(ress[i] - ress[i + 1])
+            if not (left2 > 400 and right2 > 400):
+                res.append(ress[i])
+        label .a
+        _=len(ress2)
+        if _==1:
+            goto .begin
+        for i in range(_):
+            if i == 0:
+                left1 = np.linalg.norm(ress2[0] - ress2[_ - 1])
+                right1 = np.linalg.norm(ress2[i] - ress2[i + 1])
+            elif i == _ - 1:
+                left1 = np.linalg.norm(ress2[i] - ress2[i - 1])
+                right1 = np.linalg.norm(ress2[i] - ress2[0])
+            else:
+                left1 = np.linalg.norm(ress2[i] - ress2[i - 1])
+                right1 = np.linalg.norm(ress2[i] - ress2[i + 1])
+            if not (left1 > 300 and right1 > 300):
+                res2.append(ress2[i])
+        label .begin
+        if len(res2)==0 or len(res)==0:
             continue
         points_len.append(len(ress))
         res2 = np.mean(res2, axis=0)
@@ -235,6 +270,8 @@ def main():
     BLUE = (0, 0, 255)
     RED = (255, 0, 0)
     GREEN = (0, 255, 0)
+    truth_total = []
+    trend2_total = []
     pygame.init()
     pygame.display.set_caption("data geter")
     t = 0
@@ -315,6 +352,7 @@ def main():
         rec1 = pygame.Rect(x, y, 120, 120)
         pygame.draw.rect(screen, (0, 0, 0), rec1, 1)
         # number_txt=str(int(np.linalg.norm(a)))
+        trend2_total.append(a)
         number_txt = str(np.round(a, 2))
         number_txt2 = str(pl)
         number_img = number_front.render(number_txt, True, (0, 0, 0), (255, 255, 255))
@@ -382,6 +420,26 @@ def main():
         screen.blit(number_img2, (x, y))
     pygame.image.save(screen, os.path.join(root_path, 'truth.png'))
     screen.fill(background_color)
+    for t, a, pl in zip(ttxt, r_truth, points_len):
+        x = t[0] - 60
+        y = t[1] - 60
+        w, h = 120, 120
+        c = int(np.linalg.norm(a) * 255.0 / max_a)
+        color = (c, 0, 0)
+        rec1 = pygame.Rect(x, y, 120, 120)
+        pygame.draw.rect(screen, (0, 0, 0), rec1, 1)
+        # number_txt=str(int(np.linalg.norm(a)))
+        truth_total.append(np.linalg.norm(a))
+        number_txt = str(np.round(np.linalg.norm(a), 2))
+        number_txt2 = str(pl)
+        number_img = number_front.render(number_txt, True, (0, 0, 0), (255, 255, 255))
+        number_img2 = number_front2.render(number_txt2, True, (0, 0, 0), (255, 255, 255))
+        margin_x = (120 - 1 - number_img.get_width()) // 2
+        margin_y = (120 - 1 - number_img.get_height()) // 2
+        screen.blit(number_img, (x + 2 + margin_x, y + 2 + margin_y))
+        screen.blit(number_img2, (x, y))
+    pygame.image.save(screen, os.path.join(root_path, 'truth_2.png'))
+    screen.fill(background_color)
     for t, a, pl in zip(ttxt, dis_left, points_len):
         x = t[0] - 60
         y = t[1] - 60
@@ -420,20 +478,20 @@ def main():
         screen.blit(number_img2, (x, y))
     pygame.image.save(screen, os.path.join(root_path, 'dis_left.png'))
     # '''
-    print(f'cali {time2 - time1}')
-    print(f'{timeit.default_timer() - time1}')
-    print(f'{read_img} {read_img / img_times}')
-    print(f'{read_txt} {read_txt/txt_times}')
-    gt=et.get_time()
-    t=-4
-    for g in gt:
-        if isinstance(g,list):
-            # print('tuple')
-            for i in g:
-                print(f'{t} {i}')
-                t+=1
-        else:
-            print(g)
+    # print(f'cali {time2 - time1}')
+    # print(f'{timeit.default_timer() - time1}')
+    # print(f'{read_img} {read_img / img_times}')
+    # print(f'{read_txt} {read_txt/txt_times}')
+    # gt=et.get_time()
+    # t=-4
+    # for g in gt:
+    #     if isinstance(g,list):
+    #         # print('tuple')
+    #         for i in g:
+    #             print(f'{t} {i}')
+    #             t+=1
+    #     else:
+    #         print(g)
     # print(f'-----------------------------max {max_a} {max_a2}')
     # print('{:<5}{:<30}\t{:<30}\t{:<30}\t{:<30}'.format('', '左眼误差', '右眼误差', '两眼平均误差', '平均修正误差'))
     # # print(('左眼误差右眼误差两眼平均误差 平均修正误差'))
@@ -442,6 +500,7 @@ def main():
     # print('{:<30}{:<30}{:<30}{:<30}'.format('左眼误差均值', '右眼误差均值', '两眼平均误差均值', '平均修正误差均值'))
     # print('{:<30}\t{:<30}\t{:<30}{:<30}'.format(str(vec_left), str(vec_right), str(vec_ave), str(vec_ave_2)))
     print(f'nine areas {era_value/era_times}')
+    print(f'trend mean{np.mean(trend2_total)} truth mean {np.mean(truth_total)}')
 
 
 def cali():
@@ -452,69 +511,89 @@ def cali():
     vecs_left = []
     vecs_right = []
     vecs_ave = []
-    c_txt = []
     count_t=0
     tracker1.calibration_mode(True)
     des_left, des_right, des_ave = [], [], []
     txtss, imgss, imagess = get_path('cali')
+    points_num = 1
+    origin_position=[]
+    oleft=[]
+    oright=[]
     for txts, imgs, images in zip(txtss, imgss, imagess):
+        nums = 0
         ress = []
-        count_k=0
         txt_num = np.zeros((2))
+        temp_centers = []
         for txt, img_p, image in zip(txts, imgs, images):
-            # print(img_p)
-            time1=timeit.default_timer()
             img = cv2.imread(img_p)
-            time2 = timeit.default_timer()
-            read_img+=time2-time1
-            img_times+=1.
             gray_img = du.get_gray_pic(img)
-            res = tracker1.detect(gray_img, image)
-            if isinstance(res, str):
-                # print(f'{res} pass')
-                continue
-            time3=timeit.default_timer()
             with open(txt) as t:
                 txt = t.read()
             txt = txt.split(' ')
             txt_num = np.array(txt, dtype=np.float32)
-            time4=timeit.default_timer()
-            txt_times+=1.
-            read_txt+=time4-time3
-            ress.append(res)
-            count_k+=1
+            res = tracker1.detect(gray_img,f=(points_num==points_num))
+            if isinstance(res, str):
+                continue
+            tracker1.left_eye = tracker1.pure.left_eye
+            tracker1.right_eye = tracker1.pure.right_eye
+            temp_centers.append([tracker1.pure.left_eye, tracker1.pure.right_eye])
+            ress.append(np.array(res, dtype=np.float32))
+            nums += 1
         count_t += 1
-        average = np.mean(ress, axis=0)
-        if len(ress) == 0:
-            continue
         res = []
-        for r1 in ress:
-            if not np.linalg.norm(r1 - average) > 300:
-                res.append(r1)
+        _ = len(ress)
+        centers = []
+        for i in range(_):
+            if i == 0:
+                left = np.linalg.norm(ress[0] - ress[_ - 1])
+                right = np.linalg.norm(ress[i] - ress[i + 1])
+            elif i == _ - 1:
+                left = np.linalg.norm(ress[i] - ress[i - 1])
+                right = np.linalg.norm(ress[i] - ress[0])
+            else:
+                left = np.linalg.norm(ress[i] - ress[i - 1])
+                right = np.linalg.norm(ress[i] - ress[i + 1])
+            if left > 400 and right > 400:
+                # if points_num==7:
+                    # print(left,right)
+                continue
+            # print(f'point {points_num} pass')
+            centers.append(temp_centers[i])
+            res.append(ress[i])
+        eye_center = np.mean(centers, axis=0)
+        tracker1.left_eye = eye_center[0]
+        tracker1.right_eye = eye_center[1]
+        if points_num == 1:
+            tracker1.origin_position = eye_center.mean(axis=0)
+            tracker1.oleft_eye = eye_center[0]
+            tracker1.oright_eye = eye_center[1]
+            origin_position=tracker1.origin_position
+            oleft=eye_center[0]
+            oright=eye_center[1]
+
+        # print(difference)
+        sub = (tracker1.left_eye + tracker1.right_eye) / 2
+        c_offset = np.array([origin_position[0] - sub[0], sub[1] - origin_position[1]], dtype=np.float32)*tracker1._s
         if len(res) == 0:
             continue
-        print(count_t)
         res = np.mean(res, axis=0)
-        # print(f't{count_t} k{count_k}')
-        c_txt.append(txt_num)
-        g_len = np.fabs((res[0][0] + res[1][0]) / 2)
-        vecs_right.append((res[1] - txt_num ))
-        vecs_left.append((res[0] - txt_num ))
-        vecs_ave.append((res[0] * (1920. - g_len) / 1920) + (res[1] * (g_len) / 1920.) - txt_num )
-        des_left.append(res[0])
-        des_right.append(res[1])
-        des_ave.append((res[0] * (1920 - g_len) / 1920) + (res[1] * (g_len) / 1920))
-
+        point=txt_num
+        # print(f'cali c_off {c_offset}')
+        g_len = np.fabs((res[0][0] + res[1][0])/2)
+        vecs_right.append((res[1] - point + np.array([oright[0]-tracker1.right_eye[0],tracker1.right_eye[1]-oright[1]],np.float32)*tracker1._s))
+        vecs_left.append((res[0] - point) + np.array([oleft[0]-tracker1.left_eye[0],tracker1.left_eye[1]-oleft[1]],dtype=np.float32)*tracker1._s)
+        vecs_ave.append((res[0] * (1920. - g_len) / 1920.) + (res[1] * (g_len) / 1920) - point + c_offset)
+        des_left.append(res[0] + np.array([oleft[0]-tracker1.left_eye[0],tracker1.left_eye[1]-oleft[1]],dtype=np.float32)*tracker1._s)
+        des_right.append(res[1] +np.array([oright[0]-tracker1.right_eye[0],tracker1.right_eye[1]-oright[1]],np.float32)*tracker1._s)
+        des_ave.append((res[0] * (1920. - g_len) / 1920.) + (res[1] * (g_len) / 1920)-c_offset)
+        print(f'point {points_num} finished')
+        points_num += 1
     return np.array(vecs_left, dtype=np.float32), \
            np.array(vecs_right, dtype=np.float32), \
            np.array(vecs_ave, dtype=np.float32), \
            np.array(des_left, dtype=np.float32), np.array(des_right, dtype=np.float32), np.array(des_ave,
-                                                                                                 dtype=np.float32)
-
-    # return np.array(vecs_left, dtype=np.float32), \
-    #        np.array(vecs_right, dtype=np.float32), \
-    #        np.array(vecs_ave, dtype=np.float32), \
-    #        np.array(c_txt, dtype=np.float32)
+                                                                                                dtype=np.float32),\
+            oleft,oright,origin_position
 
 
 def test():
@@ -546,7 +625,7 @@ def test():
     np.random.shuffle(points)
     ps = points[0:20]
     for p in ps:
-        pygame.draw.circle(screen, (255, 0, 0), (p[0], p[1]), 10)
+        pygame.dqraw.circle(screen, (255, 0, 0), (p[0], p[1]), 10)
         pygame.display.update()
     # calis=[]
     # for i in range(7):
@@ -558,5 +637,4 @@ def test():
 
 if __name__ == '__main__':
     test()
-    # cali()
     # main()

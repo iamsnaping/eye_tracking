@@ -267,7 +267,7 @@ class PuRe_params(object):
         self.gd_max = 10
         self.pd_min = 30
         self.pd_max = 60
-        self.puipil_min_area = 720
+        self.puipil_min_area = 100
         self.pupil_max_area = 3000
         self.find_contour_param = cv2.CHAIN_APPROX_TC89_KCOS
         self.r_th = 0.5
@@ -277,8 +277,8 @@ class PuRe_params(object):
         self.g_threshold = 50
         self.p_binary_threshold = 35
         self.g_binary_threshold = 135
-        self.pupil_d_l = 0.
-        self.pupil_d_r = 0.
+        self.left_eye = 0.
+        self.right_eye = 0.
         for i in range(11):
             for j in range(11):
                 if (np.abs(i - 5) ** 2) + (np.abs(j - 5) ** 2) <= 16:
@@ -295,7 +295,7 @@ class PuRe(object):
             self.gd_min = 5
             self.gd_max = 10
             self.pd_min = 30
-            self.pd_max = 60
+            self.pd_max = 80
             self.glints_num = 3
             self.glint_min_area = 10
             self.glint_max_area = 100
@@ -309,9 +309,8 @@ class PuRe(object):
             self.kernel = np.zeros((11, 11), dtype=np.float32)
             self.p_binary_threshold = 35
             self.g_binary_threshold = 135
-            self.pupil_center = np.zeros(2, dtype=np.float32)
-            self.pupil_d_l = 0.
-            self.pupil_d_r = 0.
+            self.left_eye = 0.
+            self.right_eye = 0.
             for i in range(11):
                 for j in range(11):
                     if (np.abs(i - 5) ** 2) + (np.abs(j - 5) ** 2) <= 16:
@@ -367,6 +366,8 @@ class PuRe(object):
         self.p_binary_threshold = params.p_binary_threshold
         self.g_binary_threshold = params.g_binary_threshold
         self.pupil_center=np.zeros(2,dtype=np.float32)
+        self.left_eye = 0.
+        self.right_eye = 0.
 
     def filter_thin(self, img):
         filter_img = img_filter(img, self.filter_1, 255 * 3, degrade=1)
@@ -546,7 +547,8 @@ class PuRe(object):
         time_recorder[2] += time4 - time3
         times_recorder[2] += 1.0
         # cv2.setNumThreads(2)
-        for i in range(40, 56, 5):
+        #40 56
+        for i in range(75, 91, 5):
             pupil_img_1 = cv2.threshold(img_1, i, 255, cv2.THRESH_BINARY_INV)[1]
             pupil_img_2 = cv2.threshold(img_2, i, 255, cv2.THRESH_BINARY_INV)[1]
             tf1 = timeit.default_timer()
@@ -580,8 +582,6 @@ class PuRe(object):
         time_recorder[3] += time5 - time4
         if isinstance(p_contours_1, list) or isinstance(p_contours_2, list):
             return False
-        self.pupil_d_l = (p_contours_1.ellipse[1][0] + p_contours_1.ellipse[1][1]) / 2.
-        self.pupil_d_r = (p_contours_2.ellipse[1][0] + p_contours_2.ellipse[1][1]) / 2.
         glint_contours_1 = self.find_contours(glint_img_1, self.gd_min, self.gd_max)
         glint_contours_2 = self.find_contours(glint_img_2, self.gd_min, self.gd_max)
         if isinstance(p_contours_2, bool) or isinstance(p_contours_1, bool):
@@ -604,6 +604,8 @@ class PuRe(object):
             contour.add_offset(img_1_origin)
         for contour in g_contours_2:
             contour.add_offset(img_2_origin)
+        self.left_eye = np.array(p_contours_1.ellipse[0], dtype=np.float32)
+        self.right_eye = np.array(p_contours_2.ellipse[0], dtype=np.float32)
         time6 = timeit.default_timer()
         times_recorder[4] += 1.0
         time_recorder[4] += time6 - time5
